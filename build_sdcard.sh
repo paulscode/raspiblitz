@@ -19,7 +19,7 @@ update-locale LANG=en_US.UTF-8 1>/dev/null
 source /etc/default/locale
 
 defaultRepo="raspiblitz" # user that hosts a `raspiblitz` repo
-defaultBranch="v1.11" # latest version branch
+defaultBranch="bitcoin-knots" # latest version branch
 
 defaultAPIuser="fusion44"
 defaultAPIrepo="blitz_api"
