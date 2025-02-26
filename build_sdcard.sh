@@ -18,7 +18,7 @@ locale-gen en_US.UTF-8 en_US ISO-8859-1 1>/dev/null
 update-locale LANG=en_US.UTF-8 1>/dev/null
 source /etc/default/locale
 
-defaultRepo="raspiblitz" # user that hosts a `raspiblitz` repo
+defaultRepo="retropex" # user that hosts a `raspiblitz` repo
 defaultBranch="bitcoin-knots" # latest version branch
 
 defaultAPIuser="fusion44"
