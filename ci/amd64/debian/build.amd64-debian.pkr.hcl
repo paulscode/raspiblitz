@@ -1,4 +1,4 @@
-variable "iso_name" { default = "debian-12.8.0-amd64-netinst.iso" }
+variable "iso_name" { default = "debian-12.9.0-amd64-netinst.iso" }
 variable "iso_checksum" { default = "04396d12b0f377958a070c38a923c227832fa3b3e18ddc013936ecf492e9fbb3" }
 
 variable "pack" { default = "lean" }

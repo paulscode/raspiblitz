@@ -7,7 +7,7 @@ concurrency:
 on:
   workflow_dispatch:
   push:
-    branches: ['dev', 'v1.10', 'bitcoin-knots']
+    branches: ['dev', 'v1.10']
     paths:
       - 'build_sdcard.sh'
       - 'home.admin/bitcoin.install.sh'
