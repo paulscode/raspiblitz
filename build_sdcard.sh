@@ -351,7 +351,7 @@ grep -q "^nameserver 8.8.8.8$" /etc/resolv.conf || echo "nameserver 8.8.8.8" >> 
 
 echo -e "\n*** UPDATE Debian***"
 apt-get update -y
-apt-get upgrade -f -y
+apt-get upgrade -f -y -o Dpkg::Options::="--force-confold"
 
 echo -e "\n*** SOFTWARE UPDATE ***"
 # based on https://raspibolt.org/system-configuration.html#system-update
