@@ -179,22 +179,6 @@ if [ "$1" = "1" ] || [ "$1" = "on" ]; then
   echo "bitcoind can take a lot of time to restart because of the blocks verification, please be patient."
   exit 0
 
-  # OK so your app is now installed, but there please also check the following parts to ensure a propper integration
-  # into the raspiblitz system:
-
-  # PROVISION - reinstall on updates & recovery
-  # Take a look at `_provision_.sh` script - you can see that there all bonus apps install scripts get called if
-  # they have an active entry in the raspiblitz config. This is needed so that on sd card image update or recovery
-  # all apps get installed again. So add your app there accordantly so its install will survive an sd card update.
-
-  # MAINMENU - show users that app is installed
-  # Take a look at the `00mainmenu.sh` script - you can see there almost all bonus apps add a menu entry there if
-  # they are installed that then is calling this script with the `menu` parameter. Add your app accordingly.
-
-  # SERVICES MENU - add your app for onclick install
-  # Take a look at the `00settingsMenuServices.sh` script - you can there almost all bonus apps added themselves
-  # as an option in to be easily installed & deinstalled. Add your app there accordantly.
-
 fi
 
 ##########################
