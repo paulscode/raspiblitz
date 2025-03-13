@@ -33,6 +33,7 @@ if [ ${#lndk} -eq 0 ]; then lndk="off"; fi
 if [ ${#labelbase} -eq 0 ]; then labelbase="off"; fi
 if [ ${#publicpool} -eq 0 ]; then publicpool="off"; fi
 if [ ${#albyhub} -eq 0 ]; then albyhub="off"; fi
+if [ ${#datum} -eq 0 ]; then datum="off"; fi
 if [ "${albyhub}" == "on" ] && [ $(sudo ls /etc/systemd/system/albyhub.service 2>/dev/null | grep -c 'albyhub.service') -lt 1 ]; then albyhub="off"; fi
 
 # show select dialog
@@ -52,6 +53,7 @@ if [ "${network}" == "bitcoin" ]; then
   OPTIONS+=(wa 'BTC Download Bitcoin Whitepaper' ${whitepaper})
   OPTIONS+=(ls 'BTC Labelbase' ${labelbase})
   OPTIONS+=(pp 'BTC Publicpool (Solo Mining)' ${publicpool})  
+  OPTIONS+=(dt 'BTC Datum' ${datum})
 fi
 
 # available for both LND & c-lightning
@@ -678,4 +680,20 @@ if [ ${needsReboot} -eq 1 ]; then
    sudo -u bitcoin ${network}-cli stop
    sleep 4
    sudo /home/admin/config.scripts/blitz.shutdown.sh reboot
+fi
+
+choice="off"; check=$(echo "${CHOICES}" | grep -c "dt")
+if [ ${check} -eq 1 ]; then choice="on"; fi
+if [ "${datum}" != "${choice}" ]; then
+  echo "Datum settings changed .."
+  anychange=1
+  sudo -u admin /home/admin/config.scripts/bonus.datum.sh ${choice}
+  errorOnInstall=$?
+  if [ ${errorOnInstall} -eq 0 ]; then
+    echo "Datum is installed."
+  else
+    echo "Datum installation have failed."
+  fi
+else
+  echo "Datum setting unchanged"
 fi
