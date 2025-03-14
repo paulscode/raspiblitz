@@ -236,6 +236,18 @@ if [ "$1" = "1" ] || [ "$1" = "on" ]; then
 }
 " > /mnt/hdd/app-data/datum/datum_config.json'
 
+  # Configure bitcoind
+
+  sudo -u bitcoin bash -c 'echo "blockmaxsize=3985000" >> /mnt/hdd/bitcoin/bitcoin.conf'
+  sudo -u bitcoin bash -c 'echo "blockmaxweight=3985000" >> /mnt/hdd/bitcoin/bitcoin.conf'
+  sudo -u bitcoin bash -c 'echo "maxmempool=1000" >> /mnt/hdd/bitcoin/bitcoin.conf'
+  sudo -u bitcoin bash -c 'echo "blocknotify=curl -s -m 5 127.0.0.1:21000/NOTIFY" >> /mnt/hdd/bitcoin/bitcoin.conf'
+  sudo -u bitcoin sed -i "s/^dnsseed=.*/dnsseed=1/" "/mnt/hdd/bitcoin/bitcoin.conf"
+  sudo -u bitcoin sed -i "/^onlynet=/d" "/mnt/hdd/bitcoin/bitcoin.conf"
+
+  echo "# restart bitcoind"
+  sudo systemctl restart --no-block bitcoind.service
+
   # open the ports in the firewall
   echo "# updating Firewall"
   sudo ufw allow ${PORT_CLEAR} comment "${APPID} HTTP"
@@ -368,6 +380,18 @@ if [ "$1" = "0" ] || [ "$1" = "off" ]; then
 
   echo "# mark app as uninstalled in raspiblitz config"
   /home/admin/config.scripts/blitz.conf.sh set ${APPID} "off"
+
+  echo "# deleting useless bitcoin.conf entry"
+  sudo -u bitcoin sed -i "/^blockmaxsize=/d" "/mnt/hdd/bitcoin/bitcoin.conf"
+  sudo -u bitcoin sed -i "/^blockmaxweight=/d" "/mnt/hdd/bitcoin/bitcoin.conf"
+  sudo -u bitcoin sed -i "/^maxmempool=/d" "/mnt/hdd/bitcoin/bitcoin.conf"
+  sudo -u bitcoin sed -i "/^blocknotify=/d" "/mnt/hdd/bitcoin/bitcoin.conf"
+  sudo -u bitcoin sed -i "s/^dnsseed=.*/dnsseed=0/" "/mnt/hdd/bitcoin/bitcoin.conf"
+  sudo -u bitcoin bash -c 'echo "onlynet=onion" >> /mnt/hdd/bitcoin/bitcoin.conf'
+  sudo -u bitcoin bash -c 'echo "onlynet=i2p" >> /mnt/hdd/bitcoin/bitcoin.conf'
+
+  echo "# restart bitcoind"
+  sudo systemctl restart --no-block bitcoind.service
 
   # only if 'delete-data' is an additional parameter then also the data directory gets deleted
   if [ "$(echo "$@" | grep -c delete-data)" -gt 0 ]; then
