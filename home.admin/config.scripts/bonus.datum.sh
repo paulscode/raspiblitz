@@ -98,9 +98,14 @@ if [ "$1" = "menu" ]; then
   # set the title for the dialog
   dialogTitle=" ${APPID} "
 
+  password=$(jq -r '.api.admin_password' /mnt/hdd/app-data/datum/datum_config.json)
+
   # basic info text - for an web app how to call with http & self-signed https
   dialogText="Open in your local web browser:
 http://${localIP}:${PORT_CLEAR}\n
+
+Datum user=admin
+Datum admin password=$password
 "
 
   # use whiptail to show SSH dialog & exit
@@ -170,7 +175,7 @@ if [ "$1" = "1" ] || [ "$1" = "on" ]; then
   # make sure needed debian packages are installed
   # 'fbi' is here just an example - change to what you need or delete
   echo "# install from source code"
-  sudo apt install -y cmake pkgconf libcurl4-openssl-dev libjansson-dev libmicrohttpd-dev libsodium-dev psmisc
+  sudo apt install -y cmake pkgconf libcurl4-openssl-dev libjansson-dev libmicrohttpd-dev libsodium-dev psmisc pwgen
 
   # download source code and verify
   # BACKGROUND is that now you download the code from github, reset to a given version tag/commit,
@@ -206,6 +211,8 @@ if [ "$1" = "1" ] || [ "$1" = "on" ]; then
     sudo -u ${APPID} touch /mnt/hdd/app-data/${APPID}/datum_config.json
   fi
 
+  PASS=$(pwgen -N 1 -n 20)
+
   sudo -u ${APPID} bash -c 'echo "{
   \"bitcoind\": {
     \"rpcuser\": \"auto-config\",
@@ -215,7 +222,7 @@ if [ "$1" = "1" ] || [ "$1" = "on" ]; then
   \"api\": {
     \"listen_port\": 21000,
     \"modify_conf\": true,
-    \"admin_password\": \"raspiblitz\"
+    \"admin_password\": \"$1\"
   },
   \"mining\": {
     \"pool_address\": \"\",
@@ -234,7 +241,7 @@ if [ "$1" = "1" ] || [ "$1" = "on" ]; then
     \"pooled_mining_only\": true
   }
 }
-" > /mnt/hdd/app-data/datum/datum_config.json'
+" > /mnt/hdd/app-data/datum/datum_config.json' _ "$PASS"
 
   # Configure bitcoind
 
@@ -347,8 +354,6 @@ if [ "$1" = "prestart" ]; then
 
   jq --arg RPCPASS "$RPCPASS" '.bitcoind.rpcpassword = $RPCPASS' /mnt/hdd/app-data/${APPID}/datum_config.json > /mnt/hdd/app-data/${APPID}/datum_config.json.tmp && mv /mnt/hdd/app-data/${APPID}/datum_config.json.tmp /mnt/hdd/app-data/${APPID}/datum_config.json
   jq --arg RPCUSER "$RPCUSER" '.bitcoind.rpcuser = $RPCUSER' /mnt/hdd/app-data/${APPID}/datum_config.json > /mnt/hdd/app-data/${APPID}/datum_config.json.tmp && mv /mnt/hdd/app-data/${APPID}/datum_config.json.tmp /mnt/hdd/app-data/${APPID}/datum_config.json
-  jq --arg RPCPASS "$RPCPASS" '.api.admin_password = $RPCPASS' /mnt/hdd/app-data/${APPID}/datum_config.json > /mnt/hdd/app-data/${APPID}/datum_config.json.tmp && mv /mnt/hdd/app-data/${APPID}/datum_config.json.tmp /mnt/hdd/app-data/${APPID}/datum_config.json
-
   echo "## PRESTART CONFIG DONE for ${APPID}"
   exit 0
 fi
