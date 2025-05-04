@@ -27,7 +27,7 @@ if [ "${mode}" = "reckless" ]; then
 fi
 
 # RECOMMENDED UPDATE BY RASPIBLITZ TEAM (latest tested version available)
-bitcoinVersion="27.1.knots20240801" # example: 22.0 .. keep empty if no newer version as sd card build is available
+bitcoinVersion="28.1.knots20250305" # example: 22.0 .. keep empty if no newer version as sd card build is available
 
 # GATHER DATA
 # setting download directory to the current user
@@ -181,9 +181,11 @@ elif [ "${mode}" = "custom" ]; then
     pathVersion=${bitcoinVersion}
   fi
 
+  pathMajorVersion="$(echo "${pathVersion}" | sed 's/^\([0-9]\+\).*/\1/')"
+  pathDownloadBase="https://bitcoinknots.org/files/${pathMajorVersion}.x"
   if curl --output /dev/null --silent --head --fail \
-    https://bitcoinknots.org/files/27.x/${pathVersion}/SHA256SUMS.asc; then
-    echo "# OK version exists at https://bitcoinknots.org/files/27.x/${pathVersion}"
+    ${pathDownloadBase}/${pathMajorVersion}.x/${pathVersion}/SHA256SUMS.asc; then
+    echo "# OK version exists at ${pathDownloadBase}/${pathVersion}"
     if [ "${mode}" = "custom" ] && [ "$3" = "skipverify" ]; then
       echo "# skipping signature verification"
     fi
@@ -197,6 +199,10 @@ elif [ "${mode}" = "custom" ]; then
     exit 0
   fi
 fi
+
+majorVersion="$(echo "${bitcoinVersion}" | sed 's/^\([0-9]\+\).*/\1/')"
+downloadBase="https://bitcoinknots.org/files/${majorVersion}.x"
+echo "# using download base: ${downloadBase}"
 
 # JOINED INSTALL
 if [ "${mode}" = "tested" ] || [ "${mode}" = "reckless" ] || [ "${mode}" = "custom" ]; then
@@ -220,9 +226,9 @@ if [ "${mode}" = "tested" ] || [ "${mode}" = "reckless" ] || [ "${mode}" = "cust
     jq -r '.[].download_url' | while read url; do curl -s "$url" | gpg --import; done
 
   # download signed binary sha256 hash sum file
-  wget --prefer-family=ipv4 --progress=bar:force -O SHA256SUMS https://bitcoinknots.org/files/27.x/${bitcoinVersion}/SHA256SUMS
+  wget --prefer-family=ipv4 --progress=bar:force -O SHA256SUMS ${downloadBase}/${bitcoinVersion}/SHA256SUMS
   # download the signed binary sha256 hash sum file and check
-  wget --prefer-family=ipv4 --progress=bar:force -O SHA256SUMS.asc https://bitcoinknots.org/files/27.x/${bitcoinVersion}/SHA256SUMS.asc
+  wget --prefer-family=ipv4 --progress=bar:force -O SHA256SUMS.asc ${downloadBase}/${bitcoinVersion}/SHA256SUMS.asc
 
   if [ "${mode}" = "custom" ] && [ "$3" = "skipverify" ]; then
     echo "# skipping signature verification"
@@ -247,7 +253,7 @@ if [ "${mode}" = "tested" ] || [ "${mode}" = "reckless" ] || [ "${mode}" = "cust
 
   echo "# Downloading Bitcoin Knots v${bitcoinVersion} for ${bitcoinOSversion} ..."
   binaryName="bitcoin-${bitcoinVersion}-${bitcoinOSversion}.tar.gz"
-  wget https://bitcoinknots.org/files/27.x/${pathVersion}/${binaryName}
+  wget ${downloadBase}/${pathVersion}/${binaryName}
   if [ ! -f "./${binaryName}" ]; then
     echo "# FAIL # Downloading BITCOIN BINARY did not succeed."
     exit 1

@@ -2,8 +2,9 @@
 
 # set version (change if update is available)
 # https://bitcoinknots.org/files/
-bitcoinVersion="27.1.knots20240801"
-
+bitcoinVersion="28.1.knots20250305"
+majorVersion="$(echo "${bitcoinVersion}" | sed 's/^\([0-9]\+\).*/\1/')"
+downloadBase="https://bitcoinknots.org/files/${majorVersion}.x"
 
 # command info
 if [ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" = "-help" ]; then
@@ -18,6 +19,7 @@ if [ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" = "-help" ]; then
 fi
 
 echo "# Running: bitcoin.install.sh $*"
+echo "# using download base: ${downloadBase}"
 
 # mainnet | testnet | signet
 CHAIN=${2:-mainnet}
@@ -82,9 +84,9 @@ if [ "$1" = "install" ]; then
     jq -r '.[].download_url' | while read url; do curl -s "$url" | gpg --import; done
 
   # download signed binary sha256 hash sum file
-  sudo -u admin wget --prefer-family=ipv4 --progress=bar:force -O SHA256SUMS https://bitcoinknots.org/files/27.x/${bitcoinVersion}/SHA256SUMS
+  sudo -u admin wget --prefer-family=ipv4 --progress=bar:force -O SHA256SUMS ${downloadBase}/${bitcoinVersion}/SHA256SUMS
   # download the signed binary sha256 hash sum file and check
-  sudo -u admin wget --prefer-family=ipv4 --progress=bar:force -O SHA256SUMS.asc https://bitcoinknots.org/files/27.x/${bitcoinVersion}/SHA256SUMS.asc
+  sudo -u admin wget --prefer-family=ipv4 --progress=bar:force -O SHA256SUMS.asc ${downloadBase}/${bitcoinVersion}/SHA256SUMS.asc
 
   if gpg --verify SHA256SUMS.asc; then
     echo
@@ -113,8 +115,8 @@ if [ "$1" = "install" ]; then
   # download resources
   binaryName="bitcoin-${bitcoinVersion}-${bitcoinOSversion}.tar.gz"
   if [ ! -f "./${binaryName}" ]; then
-    echo "# Downloading https://bitcoinknots.org/files/27.x/${bitcoinVersion}/${binaryName} ..."
-    sudo -u admin wget --quiet https://bitcoinknots.org/files/27.x/${bitcoinVersion}/${binaryName}
+    echo "# Downloading ${downloadBase}/${bitcoinVersion}/${binaryName} ..."
+    sudo -u admin wget --quiet ${downloadBase}/${bitcoinVersion}/${binaryName}
   fi
   if [ ! -f "./${binaryName}" ]; then
     echo "# FAIL # Could not download the BITCOIN BINARY"
