@@ -24,14 +24,14 @@ elif [ $PGPsigner = ViktorTigerstrom ]; then
   pgpPubKey="187F6ADD93AE3B0CF335AA6AB984570980684DCC"
 fi
 
-source /mnt/hdd/raspiblitz.conf
+source /mnt/hdd/app-data/raspiblitz.conf
 
 # show info menu
 if [ "$1" = "menu" ]; then
 
   # get network info
   localip=$(hostname -I | awk '{print $1}')
-  toraddress=$(sudo cat /mnt/hdd/tor/lit/hostname 2>/dev/null)
+  toraddress=$(sudo cat /mnt/hdd/app-data/tor/lit/hostname 2>/dev/null)
   fingerprint=$(sudo openssl x509 -in /home/lit/.lit/tls.cert -fingerprint -noout | cut -d"=" -f2)
 
   if [ "${runBehindTor}" = "on" ] && [ ${#toraddress} -gt 0 ]; then
@@ -225,11 +225,11 @@ if [ "$1" = "1" ] || [ "$1" = "on" ]; then
     # config  #
     ###########
     # check if lnd.conf has rpcmiddleware.enable entry under [rpcmiddleware]
-    if sudo grep rpcmiddleware /mnt/hdd/lnd/lnd.conf; then
-      sudo sed -i "s/^rpcmiddleware.enable=.*/rpcmiddleware.enable=true/g" /mnt/hdd/lnd/lnd.conf
+    if sudo grep rpcmiddleware /mnt/hdd/app-data/lnd/lnd.conf; then
+      sudo sed -i "s/^rpcmiddleware.enable=.*/rpcmiddleware.enable=true/g" /mnt/hdd/app-data/lnd/lnd.conf
     else
-      sudo bash -c "echo '[rpcmiddleware]' >> /mnt/hdd/lnd/lnd.conf"
-      sudo bash -c "echo 'rpcmiddleware.enable=true' >> /mnt/hdd/lnd/lnd.conf"
+      sudo bash -c "echo '[rpcmiddleware]' >> /mnt/hdd/app-data/lnd/lnd.conf"
+      sudo bash -c "echo 'rpcmiddleware.enable=true' >> /mnt/hdd/app-data/lnd/lnd.conf"
     fi
 
     if [ "${runBehindTor}" = "on" ]; then

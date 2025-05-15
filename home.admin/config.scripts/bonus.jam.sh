@@ -8,7 +8,7 @@ USERNAME=jam
 HOME_DIR=/home/$USERNAME
 APP_DIR=webui
 RASPIBLITZ_INFO=/home/admin/raspiblitz.info
-RASPIBLITZ_CONF=/mnt/hdd/raspiblitz.conf
+RASPIBLITZ_CONF=/mnt/hdd/app-data/raspiblitz.conf
 
 # dergigi 89C4A25E69A5DE7F # theborakompanioni E8070AF0053AAC0D
 PGPsigner="theborakompanioni"
@@ -35,7 +35,7 @@ localip=$(hostname -I | awk '{print $1}')
 
 if [ "$1" = "status" ]; then
 
-  toraddress=$(sudo cat /mnt/hdd/tor/${USERNAME}/hostname 2>/dev/null)
+  toraddress=$(sudo cat /mnt/hdd/app-data/tor/${USERNAME}/hostname 2>/dev/null)
 
   echo "version='${WEBUI_VERSION}'"
   echo "installed='${isActive}'"
@@ -54,7 +54,7 @@ if [ "$1" = "menu" ]; then
 
   if [ ${isActive} -eq 1 ]; then
     # get network info
-    toraddress=$(sudo cat /mnt/hdd/tor/jam/hostname 2>/dev/null)
+    toraddress=$(sudo cat /mnt/hdd/app-data/tor/jam/hostname 2>/dev/null)
     fingerprint=$(openssl x509 -in /mnt/hdd/app-data/nginx/tls.cert -fingerprint -noout | cut -d"=" -f2)
 
     if [ "${runBehindTor}" = "on" ] && [ ${#toraddress} -gt 0 ]; then

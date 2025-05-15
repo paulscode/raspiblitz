@@ -62,7 +62,7 @@ fi
 if [ "$1" = "update-config" ]; then
 
   # prepare configs data
-  source /mnt/hdd/raspiblitz.conf 2>/dev/null
+  source /mnt/hdd/app-data/raspiblitz.conf 2>/dev/null
   if [ "${network}" = "" ]; then
     network="bitcoin"
     chain="main"
@@ -70,12 +70,12 @@ if [ "$1" = "update-config" ]; then
 
   # prepare config update
   cd /home/blitzapi/blitz_api || exit 1
-  secret=$(cat ./.env 2>/dev/null | grep "secret=" | cut -d "=" -f2)
+  secret=$(cat ./.env 2>/dev/null | grep "BAPI_JWT_SECRET=" | cut -d "=" -f2)
   cp ./.env_sample ./.env
   dateStr=$(date)
   echo "# Update Web API CONFIG (${dateStr})"
-  sed -i "s/^# platform=.*/platform=raspiblitz/g" ./.env
-  sed -i "s/^platform=.*/platform=raspiblitz/g" ./.env
+  sed -i "s/^# BAPI_PLATFORM=.*/BAPI_PLATFORM=raspiblitz/g" ./.env
+  sed -i "s/^BAPI_PLATFORM=.*/BAPI_PLATFORM=raspiblitz/g" ./.env
 
   # configure access token secret
   if [ "${secret}" == "" ] || [ "${secret}" == "please_please_update_me_please" ]; then
@@ -84,7 +84,7 @@ if [ "$1" = "update-config" ]; then
   else
     echo "# use existing secret"
   fi
-  sed -i "s/^secret=.*/secret=${secret}/g" ./.env
+  sed -i "s/^BAPI_JWT_SECRET=.*/BAPI_JWT_SECRET=${secret}/g" ./.env
 
   source /home/admin/raspiblitz.info 2>/dev/null
   if [ "${setupPhase}" == "done" ]; then
@@ -142,11 +142,11 @@ if [ "$1" = "update-config" ]; then
       # fi
 
       # update config with hex values
-      # sed -i "s/^cln_grpc_cert=.*/cln_grpc_cert=${hexClient}/g" ./.env
-      # sed -i "s/^cln_grpc_key=.*/cln_grpc_key=${hexClientKey}/g" ./.env
-      # sed -i "s/^cln_grpc_ca=.*/cln_grpc_ca=${hexCa}/g" ./.env
-      # sed -i "s/^cln_grpc_ip=.*/cln_grpc_ip=127.0.0.1/g" ./.env
-      # sed -i "s/^cln_grpc_port=.*/cln_grpc_port=4772/g" ./.env
+      # sed -i "s/^BAPI_CLN_GRPC_CERT=.*/BAPI_CLN_GRPC_CERT=${hexClient}/g" ./.env
+      # sed -i "s/^BAPI_CLN_GRPC_KEY=.*/BAPI_CLN_GRPC_KEY=${hexClientKey}/g" ./.env
+      # sed -i "s/^BAPI_CLN_GRPC_CA=.*/BAPI_CLN_GRPC_CA=${hexCa}/g" ./.env
+      # sed -i "s/^BAPI_CLN_GRPC_IP=.*/BAPI_CLN_GRPC_IP=127.0.0.1/g" ./.env
+      # sed -i "s/^BAPI_CLN_GRPC_PORT=.*/BAPI_CLN_GRPC_PORT=4772/g" ./.env
 
     else
       echo "# CONFIG Web API Lightning --> OFF"
@@ -189,7 +189,7 @@ if [ "$1" = "1" ] || [ "$1" = "on" ]; then
     GITHUB_REPO="${defaultAPIrepo}"
     activeBranch=$(git -C /home/admin/raspiblitz branch --show-current)
     echo "# activeBranch detected by raspiblitz repo: ${activeBranch}"
-    if [[ "$activeBranch" == *"dev"* ]]; then
+    if [[ "$activeBranch" == *"dev"* || "$activeBranch" != v* ]]; then
       echo "# RELEASE CANDIDATE: using dev branch"
       GITHUB_BRANCH="dev"
     else

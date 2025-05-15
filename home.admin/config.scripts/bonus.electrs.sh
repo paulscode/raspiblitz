@@ -18,7 +18,7 @@ PGPsigner="romanz"
 PGPpubkeyLink="https://github.com/${PGPsigner}.gpg"
 PGPpubkeyFingerprint="87CAE5FA46917CBB"
 
-source /mnt/hdd/raspiblitz.conf
+source /mnt/hdd/app-data/raspiblitz.conf
 
 # give status (dont call regularly - just on occasions)
 if [ "$1" = "status" ]; then
@@ -86,7 +86,7 @@ if [ "$1" = "status" ]; then
     if [ "${runBehindTor}" == "on" ]; then
       echo "TorRunning=1"
       if [ "$2" = "showAddress" ]; then
-        TORaddress=$(sudo cat /mnt/hdd/tor/electrs/hostname)
+        TORaddress=$(sudo cat /mnt/hdd/app-data/tor/electrs/hostname)
         echo "TORaddress='${TORaddress}'"
       fi
     else

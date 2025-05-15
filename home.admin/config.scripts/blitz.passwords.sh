@@ -15,7 +15,8 @@ fi
 # prepare hased password storage
 hashedPasswordSalt=""
 hashedPasswordStoragePath="/mnt/hdd/app-data/passwords"
-if [ $(df | grep -c "/mnt/hdd") -gt 0 ]; then
+
+if [ -L /mnt/hdd/app-data ]; then
   # check if path & salt file exists
   if [ $(sudo ls ${hashedPasswordStoragePath}/salt.txt | grep -c "salt.txt") -eq 0 ]; then
     echo "# creating salt & hashedPasswordStoragePath ..."
@@ -104,8 +105,8 @@ if [ "$1" != "set" ]; then
 fi
 
 # load raspiblitz config (if available)
-source /home/admin/raspiblitz.info
-source /mnt/hdd/raspiblitz.conf
+source /home/admin/raspiblitz.info 2>/dev/null
+source /mnt/hdd/app-data/raspiblitz.conf 2>/dev/null
 if [ ${#network} -eq 0 ]; then
   network="bitcoin"
 fi

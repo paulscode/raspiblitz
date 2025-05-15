@@ -335,10 +335,21 @@ WantedBy=multi-user.target
   fi
 }
 
-source /mnt/hdd/raspiblitz.conf
+source /mnt/hdd/app-data/raspiblitz.conf
 
 # switch on
 if [ "$1" = "1" ] || [ "$1" = "on" ]; then
+
+  # make sure the bitcoin directory is present and is linked
+  echo "# Bitcoin datadir"
+  source <(sudo /home/admin/config.scripts/blitz.data.sh status)
+  mkdir -p ${storageMountedPath}/app-storage/bitcoin
+  echo "# Liniking /bitcoin"
+  unlink /mnt/hdd/bitcoin 2>/dev/null
+  ln -s ${storageMountedPath}/app-storage/bitcoin /mnt/hdd/bitcoin
+  chown -R bitcoin:bitcoin /mnt/hdd/bitcoin
+  chmod -R 777 /mnt/hdd/bitcoin
+
   installParallelService
   # setting value in raspi blitz config
   /home/admin/config.scripts/blitz.conf.sh set ${CHAIN} "on"

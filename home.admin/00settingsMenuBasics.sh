@@ -3,7 +3,7 @@
 # get raspiblitz config
 echo "get raspiblitz config"
 source /home/admin/raspiblitz.info
-source /mnt/hdd/raspiblitz.conf
+source /mnt/hdd/app-data/raspiblitz.conf
 
 echo "services default values"
 if [ ${#runBehindTor} -eq 0 ]; then runBehindTor="off"; fi
@@ -37,10 +37,6 @@ fi
 echo "# map nextcloudbackup to on/off"
 NextcloudBackup="off"
 if [ $nextcloudBackupServer ] && [ $nextcloudBackupUser ] && [ $nextcloudBackupPassword ]; then NextcloudBackup="on"; fi
-
-echo "# map localbackup to on/off"
-LocalBackup="off"
-if [ ${#localBackupDeviceUUID} -gt 0 ] && [ "${localBackupDeviceUUID}" != "off" ]; then LocalBackup="on"; fi
 
 echo "# map zerotier to on/off"
 zerotierSwitch="off"
@@ -126,7 +122,6 @@ OPTIONS+=(p 'Parallel Testnet/Signet' ${parallelTestnets})
 # Lightning options (only LND and/or CLN)
 if [ "${lndNode}" == "on" ] || [ "${clNode}" == "on" ]; then
   OPTIONS+=(x 'SCB/Emergency-Backup on Nextcloud' ${NextcloudBackup})
-  OPTIONS+=(e 'SCB/Emergency-Backup USB Drive' ${LocalBackup})
 fi
 
 # LND & options (only when running LND)
@@ -292,22 +287,11 @@ if [ "${NextcloudBackup}" != "${choice}" ]; then
   sudo -u admin /home/admin/config.scripts/nextcloud.upload.sh ${choice}
   if [ "${choice}" =  "on" ]; then
     # doing initial upload so that user can see result
-    source /mnt/hdd/raspiblitz.conf
-    sudo /home/admin/config.scripts/nextcloud.upload.sh upload /mnt/hdd/lnd/data/chain/${network}/${chain}net/channel.backup
+    source /mnt/hdd/app-data/raspiblitz.conf
+    sudo /home/admin/config.scripts/nextcloud.upload.sh upload /mnt/hdd/app-data/lnd/data/chain/${network}/${chain}net/channel.backup
   fi
 else
   echo "Nextcloud backup setting unchanged."
-fi
-
-# LocalBackup process choice
-choice="off"; check=$(echo "${CHOICES}" | grep -c "e")
-if [ ${check} -eq 1 ]; then choice="on"; fi
-if [ "${LocalBackup}" != "${choice}" ]; then
-  echo "BackupdDevice Setting changed .."
-  anychange=1
-  sudo /home/admin/config.scripts/blitz.backupdevice.sh ${choice}
-else
-  echo "BackupdDevice setting unchanged."
 fi
 
 # ZeroTier process choice

@@ -10,7 +10,7 @@ fi
 # not on recoveries or updates
 
 # LOGFILE - store debug logs of bootstrap
-logFile="/home/admin/raspiblitz.provision-setup.log"
+logFile="/home/admin/raspiblitz.log"
 
 # INFOFILE - state data from bootstrap
 infoFile="/home/admin/raspiblitz.info"
@@ -21,19 +21,16 @@ setupFile="/var/cache/raspiblitz/temp/raspiblitz.setup"
 source ${setupFile}
 
 # CONFIGFILE - configuration of RaspiBlitz
-configFile="/mnt/hdd/raspiblitz.conf"
+configFile="/mnt/hdd/app-data/raspiblitz.conf"
 source ${configFile}
 
 # log header
-echo "" > ${logFile}
-chmod 640 ${logFile}
-chown root:sudo ${logFile}
 echo "###################################" >> ${logFile}
 echo "# _provision.setup.sh" >> ${logFile}
 echo "###################################" >> ${logFile}
 
 # make sure a raspiblitz.conf exists
-confExists=$(ls /mnt/hdd/raspiblitz.conf 2>/dev/null | grep -c "raspiblitz.conf")
+confExists=$(ls /mnt/hdd/app-data/raspiblitz.conf 2>/dev/null | grep -c "raspiblitz.conf")
 if [ "${confExists}" != "1" ]; then
     /home/admin/config.scripts/blitz.error.sh _provision.setup.sh "missing-config" "No raspiblitz.conf abvailable." ${logFile}
     exit 6
@@ -82,7 +79,7 @@ cp /home/admin/assets/${network}.conf /home/admin/.${network}/${network}.conf
 chown -R admin:admin /home/admin/.${network} >>${logFile} 2>&1
 
 # make sure all directories are linked
-/home/admin/config.scripts/blitz.datadrive.sh link >> ${logFile}
+/home/admin/config.scripts/blitz.data.sh link >> ${logFile}
 
 # test bitcoin config
 confExists=$(ls /mnt/hdd/${network}/${network}.conf | grep -c "${network}.conf")
@@ -145,7 +142,7 @@ echo "OK ${network} startup successful " >> ${logFile}
 
 ###################################
 # Prepare Lightning
-source /mnt/hdd/raspiblitz.conf
+source /mnt/hdd/app-data/raspiblitz.conf
 echo "Prepare Lightning (${lightning})" >> ${logFile}
 
 if [ "${hostname}" == "" ]; then
@@ -194,20 +191,17 @@ if [ "${lightning}" == "lnd" ]; then
   else
     # preparing new LND config (raspiblitz.setup)
     echo "Creating new LND config ..." >> ${logFile}
-    sudo -u bitcoin mkdir /mnt/hdd/lnd 2> /dev/null
-    cp /home/admin/assets/lnd.bitcoin.conf /mnt/hdd/lnd/lnd.conf
-    chown bitcoin:bitcoin /mnt/hdd/lnd/lnd.conf
     /home/admin/config.scripts/lnd.install.sh on mainnet
     /home/admin/config.scripts/lnd.setname.sh mainnet ${hostname}
   fi
 
   # make sure all directories are linked
-  /home/admin/config.scripts/blitz.datadrive.sh link
+  /home/admin/config.scripts/blitz.data.sh link
 
   # check if now a config exists
-  configLinkedCorrectly=$(ls /home/bitcoin/.lnd/lnd.conf | grep -c "lnd.conf")
+  configLinkedCorrectly=$(ls /mnt/hdd/app-data/lnd/lnd.conf | grep -c "lnd.conf")
   if [ "${configLinkedCorrectly}" != "1" ]; then
-    /home/admin/config.scripts/blitz.error.sh _provision.setup.sh "lnd-link-broken" "link /home/bitcoin/.lnd/lnd.conf broken" "" ${logFile}
+    /home/admin/config.scripts/blitz.error.sh _provision.setup.sh "lnd-link-broken" "link /mnt/hdd/app-data/lnd/lnd.conf broken" "" ${logFile}
     exit 7
   fi
 
@@ -249,9 +243,9 @@ if [ "${lightning}" == "lnd" ]; then
   sleep 10
 
   # Check LND health/fails (to be extended)
-  tlsExists=$(ls /mnt/hdd/lnd/tls.cert 2>/dev/null | grep -c "tls.cert")
+  tlsExists=$(ls /mnt/hdd/app-data/lnd/tls.cert 2>/dev/null | grep -c "tls.cert")
   if [ ${tlsExists} -eq 0 ]; then
-      /home/admin/config.scripts/blitz.error.sh _provision.setup.sh "lnd-no-tls" "lnd not created TLS cert" "no /mnt/hdd/lnd/tls.cert" ${logFile}
+      /home/admin/config.scripts/blitz.error.sh _provision.setup.sh "lnd-no-tls" "lnd not created TLS cert" "no /mnt/hdd/app-data/lnd/tls.cert" ${logFile}
       exit 9
   fi
 
@@ -308,12 +302,12 @@ if [ "${lightning}" == "lnd" ]; then
 
   # check if macaroon exists now - if not fail
   attempt=0
-  while [ $(sudo -u bitcoin ls -la /home/bitcoin/.lnd/data/chain/${network}/${chain}net/admin.macaroon 2>/dev/null | grep -c admin.macaroon) -eq 0 ]; do
+  while [ $(sudo -u bitcoin ls -la /mnt/hdd/app-data/lnd/data/chain/${network}/${chain}net/admin.macaroon 2>/dev/null | grep -c admin.macaroon) -eq 0 ]; do
     echo "Waiting 2 mins for LND to create macaroons ... (${attempt}0s)" >> ${logFile}
     sleep 10
     attempt=$((attempt+1))
     if [ $attempt -eq 12 ];then
-      /home/admin/config.scripts/blitz.error.sh _provision.setup.sh "lnd-no-macaroons" "lnd did not create macaroons" "/home/bitcoin/.lnd/data/chain/${network}/${chain}net/admin.macaroon --> missing" ${logFile}
+      /home/admin/config.scripts/blitz.error.sh _provision.setup.sh "lnd-no-macaroons" "lnd did not create macaroons" "/mnt/hdd/app-data/lnd/data/chain/${network}/${chain}net/admin.macaroon --> missing" ${logFile}
       exit 14
     fi
   done

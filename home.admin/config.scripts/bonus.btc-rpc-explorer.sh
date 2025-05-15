@@ -19,7 +19,7 @@ PGPsigner="janoside"
 PGPpubkeyLink="https://github.com/janoside.gpg"
 PGPpubkeyFingerprint="70C0B166321C0AF8"
 
-source /mnt/hdd/raspiblitz.conf 2>/dev/null
+source /mnt/hdd/app-data/raspiblitz.conf 2>/dev/null
 
 ##########################
 # MENU
@@ -91,7 +91,7 @@ if [ "$1" = "status" ]; then
 
     # get network info
     localIP=$(hostname -I | awk '{print $1}')
-    toraddress=$(sudo cat /mnt/hdd/tor/btc-rpc-explorer/hostname 2>/dev/null)
+    toraddress=$(sudo cat /mnt/hdd/app-data/tor/btc-rpc-explorer/hostname 2>/dev/null)
     fingerprint=$(openssl x509 -in /mnt/hdd/app-data/nginx/tls.cert -fingerprint -noout | cut -d"=" -f2)
 
     authMethod="user_admin_password_b"
@@ -382,7 +382,7 @@ EOF
   sudo npm audit fix
 
   # Hidden Service for BTC-RPC-explorer if Tor is active
-  source /mnt/hdd/raspiblitz.conf
+  source /mnt/hdd/app-data/raspiblitz.conf
   if [ "${runBehindTor}" = "on" ]; then
     # make sure to keep in sync with tor.network.sh script
     sudo /home/admin/config.scripts/tor.onion-service.sh btc-rpc-explorer 80 3022 443 3023

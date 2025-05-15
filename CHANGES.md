@@ -4,14 +4,19 @@ Work In Progress
 
 Features:
 
+- New: Boot from NVMe on RaspberryPi5
+- New: Copy from old HDD/SSD/NVMe
+- New: Optional separation of Data & Storage/Blockchain drives with Auto-Expand for Proxmox
 - Update: RaspberryOS arm64 base image 2024-11-19 (Debian 12 Bookworm) [details](https://downloads.raspberrypi.com/raspios_full_arm64/release_notes.txt)
 - Update: amd64 base image: debian-12.8.0-amd64-netinst.iso [details](https://www.debian.org/releases/stable/amd64/release-notes/ch-whats-new.en.html)
+- Update: LNbits 1.0.0 [details](https://github.com/lnbits/lnbits/releases/tag/v1.0.0)
 - Update: Lightning Terminal v0.14.1-alpha [details](https://github.com/lightninglabs/lightning-terminal/releases/tag/v0.14.1-alpha)
 - Update: BTCPayServer v2.0.5 [details](https://github.com/btcpayserver/btcpayserver/releases/tag/v2.0.5)
 - Update: Specter Desktop 2.0.5 [details](https://github.com/cryptoadvance/specter-desktop/releases/tag/v2.0.5)
 - Update: Elements 23.2.7 [details](https://github.com/ElementsProject/elements)
 - Update: Fulcrum Electrum server v1.11.1 (CLI install script with status menu) [details](https://github.com/cculianu/Fulcrum/releases/tag/v1.11.1)
-- Update: Helipad (Podcasting 2.0 Boostagram reader) v0.2.1 [details](https://github.com/Podcastindex-org/helipad/
+- Update: Helipad (Podcasting 2.0 Boostagram reader) v0.2.1 [details](https://github.com/Podcastindex-org/helipad/)
+- Remove: Migration from Umbrel, MyNode, Citadel (because of new drive layout with boot option)
 
 ## What's new in Version 1.11.4 of RaspiBlitz?
 
@@ -49,7 +54,7 @@ Containing Features:
 - Update: Mempool 3.0.0 [details](https://github.com/mempool/mempool/releases/tag/v3.0.0)
 - Update: Balance of Satoshis 19.3.4 (bos) [details](https://github.com/alexbosworth/balanceofsatoshis/blob/v19.3.4/CHANGELOG.md#1934)
 - Update: Labelbase 2.2.2 [details](https://x.com/labelbase_space)
-- Update: LNbits 0.12.11 [details](https://github.com/lnbits/lnbits/releases/tag/0.12.11)
+- Update: LNbits 0.12.11 [details](https://github.com/lnbits/lnbits/releases/tag/v0.12.11)
 - Update: RTL v0.15.2 [details](https://github.com/Ride-The-Lightning/RTL/releases/tag/v0.15.2)
 - Update: Jam (JoinMarket Web UI) v0.3.0 [details](https://github.com/joinmarket-webui/jam/releases/tag/v0.3.0)
 - Update: CLBOSS 0.13.3 [details](https://github.com/ZmnSCPxj/clboss/releases/tag/v0.13.3)

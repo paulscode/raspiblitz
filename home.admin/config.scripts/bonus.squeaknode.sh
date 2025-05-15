@@ -11,7 +11,7 @@ if [ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" = "-help" ]; then
   exit 1
 fi
 
-source /mnt/hdd/raspiblitz.conf
+source /mnt/hdd/app-data/raspiblitz.conf
 
 # show info menu
 if [ "$1" = "menu" ]; then
@@ -30,8 +30,8 @@ if [ "$1" = "menu" ]; then
 fi
 
 # add default value to raspi config if needed
-if ! grep -Eq "^squeaknode=" /mnt/hdd/raspiblitz.conf; then
-  echo "squeaknode=off" >> /mnt/hdd/raspiblitz.conf
+if ! grep -Eq "^squeaknode=" /mnt/hdd/app-data/raspiblitz.conf; then
+  echo "squeaknode=off" >> /mnt/hdd/app-data/raspiblitz.conf
 fi
 
 # status
@@ -82,7 +82,7 @@ if [ "$1" = "write-macaroons" ]; then
   sudo chown squeaknode ${lndMacaroonPath}
   sudo -u squeaknode sed -i "s|^SQUEAKNODE_LND_MACAROON_PATH=.*|SQUEAKNODE_LND_MACAROON_PATH=${lndMacaroonPath}|g" /home/squeaknode/squeaknode/.env
 
-  toraddress=$(sudo cat /mnt/hdd/tor/squeaknode-p2p-${chain}net/hostname 2>/dev/null)
+  toraddress=$(sudo cat /mnt/hdd/app-data/tor/squeaknode-p2p-${chain}net/hostname 2>/dev/null)
   sudo -u squeaknode sed -i "s|^SQUEAKNODE_SERVER_EXTERNAL_ADDRESS=.*|SQUEAKNODE_SERVER_EXTERNAL_ADDRESS=${toraddress}|g" /home/squeaknode/squeaknode/.env
 
   # set macaroon  path info in .env - USING PATH
@@ -245,10 +245,10 @@ EOF
   fi
 
   # setting value in raspi blitz config
-  sudo sed -i "s/^squeaknode=.*/squeaknode=on/g" /mnt/hdd/raspiblitz.conf
+  sudo sed -i "s/^squeaknode=.*/squeaknode=on/g" /mnt/hdd/app-data/raspiblitz.conf
 
   # Hidden Service if Tor is active
-  source /mnt/hdd/raspiblitz.conf
+  source /mnt/hdd/app-data/raspiblitz.conf
   exit 0
 fi
 
@@ -271,7 +271,7 @@ if [ "$1" = "0" ] || [ "$1" = "off" ]; then
   echo "# deleteData(${deleteData})"
 
   # setting value in raspi blitz config
-  sudo sed -i "s/^squeaknode=.*/squeaknode=off/g" /mnt/hdd/raspiblitz.conf
+  sudo sed -i "s/^squeaknode=.*/squeaknode=off/g" /mnt/hdd/app-data/raspiblitz.conf
 
   # Hidden Service if Tor is active
   if [ "${runBehindTor}" = "on" ]; then

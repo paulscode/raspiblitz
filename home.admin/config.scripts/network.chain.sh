@@ -18,7 +18,7 @@ fi
 # check and load raspiblitz config
 # to know which network is running
 source /home/admin/raspiblitz.info
-source /mnt/hdd/raspiblitz.conf
+source /mnt/hdd/app-data/raspiblitz.conf
 if [ ${#network} -eq 0 ]; then
  echo "FAIL - missing network info"
  exit 1
@@ -50,27 +50,27 @@ fi
 # editing lnd config files (hdd & admin user)
 echo "edit lightning config .."
 # fix old lnd config file (that worked with switching comment)
-sudo sed -i "s/^#bitcoin.testnet=.*/bitcoin.testnet=1/g" /mnt/hdd/lnd/lnd.conf
+sudo sed -i "s/^#bitcoin.testnet=.*/bitcoin.testnet=1/g" /mnt/hdd/app-data/lnd/lnd.conf
 sudo sed -i "s/^#bitcoin.testnet=.*/bitcoin.testnet=1/g" /home/admin/.lnd/lnd.conf
 # changes based on parameter
 if [ "$1" = "testnet" ]; then
-  echo "editing /mnt/hdd/lnd/lnd.conf"
-  sudo sed -i "s/^${network}.mainnet.*/${network}.mainnet=0/g" /mnt/hdd/lnd/lnd.conf
-  sudo sed -i "s/^${network}.testnet.*/${network}.testnet=1/g" /mnt/hdd/lnd/lnd.conf
+  echo "editing /mnt/hdd/app-data/lnd/lnd.conf"
+  sudo sed -i "s/^${network}.mainnet.*/${network}.mainnet=0/g" /mnt/hdd/app-data/lnd/lnd.conf
+  sudo sed -i "s/^${network}.testnet.*/${network}.testnet=1/g" /mnt/hdd/app-data/lnd/lnd.conf
   echo "editing /home/admin/.lnd/lnd.conf"
   sudo sed -i "s/^${network}.mainnet.*/${network}.mainnet=0/g" /home/admin/.lnd/lnd.conf
   sudo sed -i "s/^${network}.testnet.*/${network}.testnet=1/g" /home/admin/.lnd/lnd.conf
 else
-  echo "editing /mnt/hdd/lnd/lnd.conf"
-  sudo sed -i "s/^${network}.mainnet.*/${network}.mainnet=1/g" /mnt/hdd/lnd/lnd.conf
-  sudo sed -i "s/^${network}.testnet.*/${network}.testnet=0/g" /mnt/hdd/lnd/lnd.conf
+  echo "editing /mnt/hdd/app-data/lnd/lnd.conf"
+  sudo sed -i "s/^${network}.mainnet.*/${network}.mainnet=1/g" /mnt/hdd/app-data/lnd/lnd.conf
+  sudo sed -i "s/^${network}.testnet.*/${network}.testnet=0/g" /mnt/hdd/app-data/lnd/lnd.conf
   echo "editing /home/admin/.lnd/lnd.conf"
   sudo sed -i "s/^${network}.mainnet.*/${network}.mainnet=1/g" /home/admin/.lnd/lnd.conf
   sudo sed -i "s/^${network}.testnet.*/${network}.testnet=0/g" /home/admin/.lnd/lnd.conf
 fi
 
 # editing the raspi blitz config file
-echo "editing /mnt/hdd/raspiblitz.conf"
+echo "editing /mnt/hdd/app-data/raspiblitz.conf"
 if [ "$1" = "testnet" ]; then
   /home/admin/config.scripts/blitz.conf.sh set chain "test"
 else

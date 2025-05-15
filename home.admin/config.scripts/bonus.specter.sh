@@ -14,7 +14,7 @@ fi
 
 echo "# bonus.specter.sh $1 $2"
 
-source /mnt/hdd/raspiblitz.conf
+source /mnt/hdd/app-data/raspiblitz.conf
 if [ $# -gt 1 ]; then
   CHAIN=$2
   chain=${CHAIN::-3}
@@ -32,7 +32,7 @@ if [ "$1" = "status" ]; then
 
     # get network info
     localip=$(hostname -I | awk '{print $1}')
-    toraddress=$(sudo cat /mnt/hdd/tor/specter/hostname 2>/dev/null)
+    toraddress=$(sudo cat /mnt/hdd/app-data/tor/specter/hostname 2>/dev/null)
     fingerprint=$(openssl x509 -in /home/specter/.specter/cert.pem -fingerprint -noout | cut -d"=" -f2)
     echo "localIP='${localip}'"
     echo "httpPort=''"

@@ -19,14 +19,14 @@ PGPpubkeyFingerprint="4403F1DFBE779457"
 # check and load raspiblitz config
 # to know which network is running
 source /home/admin/raspiblitz.info
-source /mnt/hdd/raspiblitz.conf
+source /mnt/hdd/app-data/raspiblitz.conf
 
 if [ "$1" = "status" ] || [ "$1" = "menu" ]; then
 
   # get network info
   isInstalled=$(sudo ls /etc/systemd/system/thunderhub.service 2>/dev/null | grep -c 'thunderhub.service')
   localip=$(hostname -I | awk '{print $1}')
-  toraddress=$(sudo cat /mnt/hdd/tor/thunderhub/hostname 2>/dev/null)
+  toraddress=$(sudo cat /mnt/hdd/app-data/tor/thunderhub/hostname 2>/dev/null)
   fingerprint=$(openssl x509 -in /mnt/hdd/app-data/nginx/tls.cert -fingerprint -noout | cut -d"=" -f2)
   httpPort="3010"
   httpsPort="3011"

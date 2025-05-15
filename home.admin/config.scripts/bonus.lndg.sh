@@ -16,14 +16,14 @@ fi
 # check and load raspiblitz config
 # to know which network is running
 source /home/admin/raspiblitz.info
-source /mnt/hdd/raspiblitz.conf
+source /mnt/hdd/app-data/raspiblitz.conf
 
 if [ "$1" = "status" ] || [ "$1" = "menu" ]; then
 
   # get network info
   isInstalled=$(sudo ls /etc/systemd/system/jobs-lndg.service 2>/dev/null | grep -c 'jobs-lndg.service')
   localip=$(hostname -I | awk '{print $1}')
-  toraddress=$(sudo cat /mnt/hdd/tor/lndg/hostname 2>/dev/null)
+  toraddress=$(sudo cat /mnt/hdd/app-data/tor/lndg/hostname 2>/dev/null)
   fingerprint=$(openssl x509 -in /mnt/hdd/app-data/nginx/tls.cert -fingerprint -noout | cut -d"=" -f2)
   httpPort="8889"
   httpsPort="8888"

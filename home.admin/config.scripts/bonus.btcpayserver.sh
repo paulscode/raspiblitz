@@ -33,7 +33,7 @@ if [ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" = "-help" ]; then
   exit 1
 fi
 
-source /mnt/hdd/raspiblitz.conf
+source /mnt/hdd/app-data/raspiblitz.conf
 # get cpu architecture (checked with 'uname -m')
 source /home/admin/raspiblitz.info
 source <(/home/admin/_cache.sh get state)
@@ -177,7 +177,7 @@ if [ "$1" = "status" ]; then
     sslFingerprintIP=$(openssl x509 -in /mnt/hdd/app-data/nginx/tls.cert -fingerprint -noout 2>/dev/null | cut -d"=" -f2)
     echo "sslFingerprintIP='${sslFingerprintIP}'"
 
-    toraddress=$(sudo cat /mnt/hdd/tor/btcpay/hostname 2>/dev/null)
+    toraddress=$(sudo cat /mnt/hdd/app-data/tor/btcpay/hostname 2>/dev/null)
     echo "toraddress='${toraddress}'"
 
     sslFingerprintTOR=$(openssl x509 -in /mnt/hdd/app-data/nginx/tor_tls.cert -fingerprint -noout 2>/dev/null | cut -d"=" -f2)
@@ -614,7 +614,7 @@ if [ "$1" = "1" ] || [ "$1" = "on" ]; then
   fi
 
   # check for $BTCPayDomain
-  source /mnt/hdd/raspiblitz.conf
+  source /mnt/hdd/app-data/raspiblitz.conf
   if [ "${BTCPayDomain}" == "off" ]; then
     BTCPayDomain=""
   fi

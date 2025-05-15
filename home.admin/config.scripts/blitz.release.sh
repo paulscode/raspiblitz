@@ -15,7 +15,8 @@ echo "# raspi_bootdir(${raspi_bootdir})"
 
 # write release info to to version file
 echo "writing codeRelease commit ro version file:"
-releaseCommit=$(git -C /home/admin/raspiblitz rev-parse --short HEAD)
+fullShortCommit=$(git -C /home/admin/raspiblitz rev-parse --short HEAD)
+releaseCommit=${fullShortCommit:0:4}
 sed -i "s/^codeRelease=\".*\"/codeRelease=\"${releaseCommit}\"/" /home/admin/_version.info
 cat /home/admin/_version.info
 echo
@@ -27,6 +28,7 @@ sudo systemctl stop background.scan.service
 # remove stop flag (if exists)
 echo "deleting stop flag .."
 sudo rm ${raspi_bootdir}/stop 2>/dev/null
+sudo rm /home/admin/stop 2>/dev/null
 
 # cleaning logs
 echo "deleting raspiblitz & system logs .."

@@ -13,7 +13,7 @@ if [ "$1" == "redact" ]; then
   echo "# redacting file: ${redactFile}"
   if [ $(ls ${redactFile} 2>/dev/null | grep -c "${redactFile}") -lt 1 ]; then
     echo "# FAIL: file does not exist"
-    exi 1
+    exit 1
   fi
 
   # redact nodeIDs
@@ -62,7 +62,7 @@ codeCommit=$(git -C /home/admin/raspiblitz rev-parse --short HEAD)
 ## get basic info (its OK if not set yet)
 source /home/admin/raspiblitz.info 2>/dev/null
 source <(/home/admin/_cache.sh get state setupPhase)
-source /mnt/hdd/raspiblitz.conf 2>/dev/null
+source /mnt/hdd/app-data/raspiblitz.conf 2>/dev/null
 
 # for old nodes
 if [ ${#network} -eq 0 ]; then
@@ -130,8 +130,8 @@ if [ "${lightning}" == "lnd" ] || [ "${lnd}" == "on" ] || [ "${lnd}" == "1" ]; t
   sudo journalctl -u lnd -b --no-pager -n12
   echo
   echo "*** LAST LND (MAINNET) INFO LOGS ***"
-  echo "sudo tail -n 50 /mnt/hdd/lnd/logs/${network}/mainnet/lnd.log"
-  sudo tail -n 50 /mnt/hdd/lnd/logs/${network}/mainnet/lnd.log
+  echo "sudo tail -n 50 /mnt/hdd/app-data/lnd/logs/${network}/mainnet/lnd.log"
+  sudo tail -n 50 /mnt/hdd/app-data/lnd/logs/${network}/mainnet/lnd.log
 else
   echo "- OFF by config -"
 fi
@@ -175,8 +175,8 @@ if [ "${tlnd}" == "on" ] || [ "${tlnd}" == "1" ]; then
   sudo journalctl -u tlnd -b --no-pager -n12
   echo
   echo "*** LAST 30 LND (TESTNET) INFO LOGS ***"
-  echo "sudo tail -n 30 /mnt/hdd/lnd/logs/${network}/testnet/tnd.log"
-  sudo tail -n 30 /mnt/hdd/lnd/logs/${network}/testnet/lnd.log
+  echo "sudo tail -n 30 /mnt/hdd/app-data/lnd/logs/${network}/testnet/tnd.log"
+  sudo tail -n 30 /mnt/hdd/app-data/lnd/logs/${network}/testnet/lnd.log
 else
   echo "- OFF by config -"
 fi
@@ -219,8 +219,8 @@ if [ "${slnd}" == "on" ] || [ "${slnd}" == "1" ]; then
   sudo journalctl -u slnd -b --no-pager -n12
   echo
   echo "*** LAST 30 LND (SIGNET) INFO LOGS ***"
-  echo "sudo tail -n 30 /mnt/hdd/lnd/logs/${network}/signet/tnd.log"
-  sudo tail -n 30 /mnt/hdd/lnd/logs/${network}/signet/lnd.log
+  echo "sudo tail -n 30 /mnt/hdd/app-data/lnd/logs/${network}/signet/tnd.log"
+  sudo tail -n 30 /mnt/hdd/app-data/lnd/logs/${network}/signet/lnd.log
 else
   echo "- OFF by config -"
 fi
@@ -460,10 +460,11 @@ sudo journalctl --disk-usage
 sudo du -sh /var/log
 
 echo
-echo "*** DATADRIVE ***"
-source <(sudo /home/admin/config.scripts/blitz.datadrive.sh status)
-sudo /home/admin/config.scripts/blitz.datadrive.sh status
-sudo smartctl -a /dev/${datadisk}
+echo "*** HDD/SSD/NVMe ***"
+source <(sudo /home/admin/config.scripts/blitz.data.sh status)
+sudo /home/admin/config.scripts/blitz.data.sh status
+sudo smartctl -a /dev/${storagePartition}
+
 echo
 
 echo "*** NETWORK ***"
@@ -495,6 +496,16 @@ echo "*** SYSTEM CACHE STATUS ***"
 echo "*** POSSIBLE ERROR REPORTS ***"
 ls -1  /home/admin/error* 2>/dev/null
 echo
+
+# chech for ro-mounted system
+systemReadOnly=$(mount | grep ' on / ' | grep -c "(ro")
+if [ ${systemReadOnly} -gt 0 ]; then
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  echo "!!! SYSTEM IS READ-ONLY !!!"
+  echo "System runs in read-only mode -> see: mount | grep ' on / '"
+  echo "If your not running install media in read-only mode, there was a problem with the last shutdown or installation."
+  echo
+fi
 
 echo
 echo "*** OPTION: SHARE THIS DEBUG OUTPUT ***"

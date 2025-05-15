@@ -3,7 +3,7 @@ clear
 
 # load raspiblitz config data
 source /home/admin/raspiblitz.info
-source /mnt/hdd/raspiblitz.conf
+source /mnt/hdd/app-data/raspiblitz.conf
 
 # make sure txindex and wallet of bitcoin is on
 /home/admin/config.scripts/network.wallet.sh on
@@ -24,10 +24,10 @@ fi
 # check and set up the HS
 /home/admin/config.scripts/tor.onion-service.sh bitcoin${BITCOINRPCPORT} ${BITCOINRPCPORT} ${BITCOINRPCPORT}
 
-hiddenService=$(sudo cat /mnt/hdd/tor/bitcoin${BITCOINRPCPORT}/hostname)
+hiddenService=$(sudo cat /mnt/hdd/app-data/tor/bitcoin${BITCOINRPCPORT}/hostname)
 # https://github.com/rootzoll/raspiblitz/issues/2339
 if [ ${#hiddenService} -eq 0 ];then
-  hiddenService=$(sudo cat /mnt/hdd/tor/bitcoin/hostname)
+  hiddenService=$(sudo cat /mnt/hdd/app-data/tor/bitcoin/hostname)
 fi
 
 echo "# The Hidden Service for bitcoind port ${BITCOINRPCPORT} is:"

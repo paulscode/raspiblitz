@@ -9,7 +9,7 @@ fi
 
 # load basic system settings
 source /home/admin/raspiblitz.info 2>/dev/null
-source /mnt/hdd/raspiblitz.conf 2>/dev/null
+source /mnt/hdd/app-data/raspiblitz.conf 2>/dev/null
 
 # check that blockchain is set & supported
 if [ "${network}" != "bitcoin" ]; then
@@ -19,8 +19,7 @@ if [ "${network}" != "bitcoin" ]; then
 fi
 
 # check that HDD is available
-isMounted=$(sudo df | grep -c /mnt/hdd)
-if [ "${isMounted}" != "1" ]; then
+if [ ! -L /mnt/hdd/app-data ]; then
   echo "error='no datadrive is mounted'"
   exit 1
 fi

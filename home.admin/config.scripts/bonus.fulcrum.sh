@@ -48,7 +48,7 @@ if [ "$1" = "status" ]; then
   fulcrumVersion=$(/home/fulcrum/Fulcrum -v 2>/dev/null | grep -oP 'Fulcrum \K\d+\.\d+\.\d+')
   echo "version='${fulcrumVersion}'"
 
-  source /mnt/hdd/raspiblitz.conf
+  source /mnt/hdd/app-data/raspiblitz.conf
   if [ "${fulcrum}" = "on" ]; then
     echo "configured=1"
   else
@@ -101,7 +101,7 @@ if [ "$1" = "status" ]; then
     if [ "${runBehindTor}" == "on" ]; then
       echo "TorRunning=1"
       if [ "$2" = "showAddress" ]; then
-        TORaddress=$(sudo cat /mnt/hdd/tor/fulcrum/hostname)
+        TORaddress=$(sudo cat /mnt/hdd/app-data/tor/fulcrum/hostname)
         echo "TORaddress='${TORaddress}'"
       fi
     else

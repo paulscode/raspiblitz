@@ -18,7 +18,7 @@ logFile="/home/admin/raspiblitz.log"
 infoFile="/home/admin/raspiblitz.info"
 
 # CONFIGFILE - configuration of RaspiBlitz
-configFile="/mnt/hdd/raspiblitz.conf"
+configFile="/mnt/hdd/app-data/raspiblitz.conf"
 
 # SETUPFILE
 # this key/value file contains the state during the setup process
@@ -83,15 +83,15 @@ echo "Copy HDD content for user admin" >> ${logFile}
 mkdir /home/admin/.${network} >> ${logFile}
 cp /mnt/hdd/${network}/${network}.conf /home/admin/.${network}/${network}.conf >> ${logFile} 2>&1
 mkdir /home/admin/.lnd >> ${logFile}
-cp /mnt/hdd/lnd/lnd.conf /home/admin/.lnd/lnd.conf >> ${logFile}
-cp /mnt/hdd/lnd/tls.cert /home/admin/.lnd/tls.cert >> ${logFile}
+cp /mnt/hdd/app-data/lnd/lnd.conf /home/admin/.lnd/lnd.conf >> ${logFile}
+cp /mnt/hdd/app-data/lnd/tls.cert /home/admin/.lnd/tls.cert >> ${logFile}
 mkdir /home/admin/.lnd/data >> ${logFile}
-cp -r /mnt/hdd/lnd/data/chain /home/admin/.lnd/data/chain >> ${logFile} 2>&1
+cp -r /mnt/hdd/app-data/lnd/data/chain /home/admin/.lnd/data/chain >> ${logFile} 2>&1
 chown -R admin:admin /home/admin/.${network} >> ${logFile} 2>&1
 chown -R admin:admin /home/admin/.lnd >> ${logFile} 2>&1
-cp /home/admin/assets/tmux.conf.local /mnt/hdd/.tmux.conf.local >> ${logFile} 2>&1
-chown admin:admin /mnt/hdd/.tmux.conf.local >> ${logFile} 2>&1
-ln -s -f /mnt/hdd/.tmux.conf.local /home/admin/.tmux.conf.local >> ${logFile} 2>&1
+cp /home/admin/assets/tmux.conf.local /mnt/hdd/app-data/.tmux.conf.local >> ${logFile} 2>&1
+chown admin:admin /mnt/hdd/app-data/.tmux.conf.local >> ${logFile} 2>&1
+ln -s -f /mnt/hdd/app-data/.tmux.conf.local /home/admin/.tmux.conf.local >> ${logFile} 2>&1
 
 # PREPARE LND (if activated)
 if [ "${lightning}" == "lnd" ] || [ "${lnd}" == "on" ]; then
@@ -100,8 +100,8 @@ if [ "${lightning}" == "lnd" ] || [ "${lnd}" == "on" ]; then
   echo "*** Make backup of LND TLS files" >> ${logFile}
   rm -r  /var/cache/raspiblitz/tls_backup 2>/dev/null
   mkdir /var/cache/raspiblitz/tls_backup 2>/dev/null
-  cp /mnt/hdd/lnd/tls.cert /var/cache/raspiblitz/tls_backup/tls.cert >> ${logFile} 2>&1
-  cp /mnt/hdd/lnd/tls.key /var/cache/raspiblitz/tls_backup/tls.key >> ${logFile} 2>&1
+  cp /mnt/hdd/app-data/lnd/tls.cert /var/cache/raspiblitz/tls_backup/tls.cert >> ${logFile} 2>&1
+  cp /mnt/hdd/app-data/lnd/tls.key /var/cache/raspiblitz/tls_backup/tls.key >> ${logFile} 2>&1
 fi
 echo "" >> ${logFile}
 
@@ -125,10 +125,10 @@ rm -r /home/admin/tmpScriptDL
 cd
 
 ###### SWAP File
-source <(/home/admin/config.scripts/blitz.datadrive.sh status)
+source <(/home/admin/config.scripts/blitz.data.sh status)
 if [ ${isSwapExternal} -eq 0 ]; then
   echo "No external SWAP found - creating ... "
-  /home/admin/config.scripts/blitz.datadrive.sh swap on
+  /home/admin/config.scripts/blitz.data.sh swap on
 else
   echo "SWAP already OK"
 fi
@@ -210,7 +210,7 @@ if [ "${blitzapi}" != "on" ] && [ ${blitzApiInstalled} -gt 0 ]; then
   /home/admin/config.scripts/blitz.web.api.sh off >> ${logFile} 2>&1
   /home/admin/config.scripts/blitz.web.ui.sh off >> ${logFile} 2>&1
 fi
-# WebAPI & UI (in case image was not fatpack - but webapi was switchen on)
+# WebAPI & UI (in case image was not fatpack - but webapi was switched on)
 if [ "${blitzapi}" == "on" ] && [ $blitzApiInstalled -eq 0 ]; then
     echo "Provisioning BlitzAPI - run config script" >> ${logFile}
     /home/admin/_cache.sh set message "Setup BlitzAPI (takes time)"
@@ -472,7 +472,7 @@ fi
 # CUSTOM PORT
 echo "Provisioning LND Port" >> ${logFile}
 if [ ${#lndPort} -eq 0 ]; then
-  lndPort=$(cat /mnt/hdd/lnd/lnd.conf | grep "^listen=*" | cut -f2 -d':')
+  lndPort=$(cat /mnt/hdd/app-data/lnd/lnd.conf | grep "^listen=*" | cut -f2 -d':')
 fi
 if [ ${#lndPort} -gt 0 ]; then
   if [ "${lndPort}" != "9735" ]; then
@@ -795,9 +795,9 @@ echo "*** Replay backup of LND conf/tls" >> ${logFile}
 if [ -d "/var/cache/raspiblitz/tls_backup" ]; then
 
   echo "Copying TLS ..." >> ${logFile}
-  cp /var/cache/raspiblitz/tls_backup/tls.cert /mnt/hdd/lnd/tls.cert >> ${logFile} 2>&1
-  cp /var/cache/raspiblitz/tls_backup/tls.key /mnt/hdd/lnd/tls.key >> ${logFile} 2>&1
-  chown -R bitcoin:bitcoin /mnt/hdd/lnd >> ${logFile} 2>&1
+  cp /var/cache/raspiblitz/tls_backup/tls.cert /mnt/hdd/app-data/lnd/tls.cert >> ${logFile} 2>&1
+  cp /var/cache/raspiblitz/tls_backup/tls.key /mnt/hdd/app-data/lnd/tls.key >> ${logFile} 2>&1
+  chown -R bitcoin:bitcoin /mnt/hdd/app-data/lnd >> ${logFile} 2>&1
   echo "On next final restart admin creds will be updated by _bootstrap.sh" >> ${logFile}
 
   echo "DONE" >> ${logFile}
@@ -821,8 +821,8 @@ echo "Start i2pd" >> ${logFile}
 /home/admin/config.scripts/blitz.i2pd.sh on >> ${logFile}
 
 # clean up raspiblitz config from old settings
-sed -i '/^autoPilot=/d' /mnt/hdd/raspiblitz.conf
-sed -i '/^lndKeysend=/d' /mnt/hdd/raspiblitz.conf
+sed -i '/^autoPilot=/d' /mnt/hdd/app-data/raspiblitz.conf
+sed -i '/^lndKeysend=/d' /mnt/hdd/app-data/raspiblitz.conf
 
 # signal setup done
 /home/admin/_cache.sh set message "Setup Done"
@@ -856,15 +856,7 @@ fi
 # always at the end, because data drives will be just available again after a reboot
 echo "Prepare fstab for permanent data drive mounting .." >> ${logFile}
 # get info on data drive
-source <(/home/admin/config.scripts/blitz.datadrive.sh status)
-# update /etc/fstab
-echo "datadisk --> ${datadisk}" >> ${logFile}
-echo "datapartition --> ${datapartition}" >> ${logFile}
-if [ ${isBTRFS} -eq 0 ]; then
-  /home/admin/config.scripts/blitz.datadrive.sh fstab ${datapartition} >> ${logFile}
-else
-  /home/admin/config.scripts/blitz.datadrive.sh fstab ${datadisk} >> ${logFile}
-fi
+/home/admin/config.scripts/blitz.data.sh mount >> ${logFile}
 
 # MAKE SURE SERVICES ARE RUNNING
 echo "Make sure main services are running .." >> ${logFile}

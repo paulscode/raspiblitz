@@ -20,10 +20,10 @@ usage(){
 
 #### VARIABLES (some might be reset by prepare) ####
 
-hdd_path="/mnt/hdd"
+hdd_path="/mnt/hdd/app-data"
 download_dir="/home/admin/download"
 tor_data_dir="${hdd_path}/tor"
-tor_conf_dir="${hdd_path}/app-data/tor"
+tor_conf_dir="${hdd_path}/tor"
 torrc="/etc/tor/torrc"
 torrc_bridges="${tor_conf_dir}/torrc.d/bridges"
 torrc_services="${tor_conf_dir}/torrc.d/services"
@@ -188,10 +188,10 @@ if [ "${action}" = "enable" ]; then
 
   echo -e "\n*** Enable Tor Service ***"
 
-  # check if HDD/SSD is available
-  if [ $(sudo df | grep -c "${hdd_path}") -lt 1 ]; then
-    echo "# FAIL: '${hdd_path}' needs to be mounted to enable Tor"
-    exit 2
+  # check if /mnt/hdd/app-data is available and symbolic link
+  if [ ! -L /mnt/hdd/app-data ]; then
+    echo "# FAIL: '/mnt/hdd/app-data' needs to be mounted/linked to enable Tor"
+    exit 1
   fi
 
   # create tor dirs and set permissions
@@ -245,6 +245,13 @@ profile system_tor flags=(attach_disconnected) {
   owner ${tor_data_dir}/** rwk,
   owner ${tor_data_dir}/ r,
   owner ${tor_conf_dir}/** rwk,
+
+  /mnt/hdd/app-data/tor/              rUx,
+  /mnt/hdd/app-data/tor/**            rwkix,
+  /mnt/disk_data/app-data/tor/        rUx,
+  /mnt/disk_data/app-data/tor/**      rwkix,
+  /mnt/disk_storage/app-data/tor/     rUx,
+  /mnt/disk_storage/app-data/tor/**   rwkix,
 
   # During startup, tor (as root) tries to open various things such as
   # directories via check_private_dir().  Let it.
