@@ -502,6 +502,7 @@ if [ "${baseimage}" = "raspios_arm64" ]; then
     echo "dtparam=nvme" | tee -a $raspi_configfile
     echo 'dtoverlay=pi3-disable-bt' | tee -a $raspi_configfile
     echo 'dtoverlay=disable-bt' | tee -a $raspi_configfile
+    echo 'program_usb_timeout=1' | tee -a $raspi_configfile #4552
   else
     echo "# Raspiblitz Edits are already in $raspi_configfile"
   fi
