@@ -928,6 +928,7 @@ if [ "$action" = "status" ]; then
         /home/admin/_cache.sh set "system_setup_storageWarning" "${storageWarning}"
         /home/admin/_cache.sh set "system_setup_storageBlockchainGB" "${storageBlockchainGB}"
         /home/admin/_cache.sh set "system_setup_storageMigration" "${storageMigration}"
+        /home/admin/_cache.sh set "system_setup_storagePartitionsCount" "${storagePartitionsCount}"
         /home/admin/_cache.sh set "system_setup_systemDevice" "${systemDevice}"
         /home/admin/_cache.sh set "system_setup_systemDeviceName" "${storageDeviceName}"
         /home/admin/_cache.sh set "system_setup_systemSizeGB" "${systemSizeGB}"
@@ -1135,17 +1136,22 @@ if [ "$action" = "link" ]; then
     chown bitcoin:bitcoin "${dataMountedPath}/app-data/bitcoin"
     if [ -d "${storageMountedPath}/bitcoin" ]; then
         echo "# moving old data from ${storageMountedPath}/bitcoin to ${storageMountedPath}/app-storage/bitcoin"
-        mv ${storageMountedPath}/bitcoin/* ${storageMountedPath}/app-storage/bitcoin/
+        rsync -a --remove-source-files --prune-empty-dirs ${storageMountedPath}/bitcoin/ ${storageMountedPath}/app-storage/bitcoin/
+        if [ $? -ne 0 ]; then
+            echo "error='failed to move ${storageMountedPath}/bitcoin/* to ${storageMountedPath}/app-storage/bitcoin/'"
+        else
+            rm -rf ${storageMountedPath}/bitcoin
+        fi
     fi
-    if [ -f "${storageMountedPath}/app-storage/bitcoin/bitcoin.conf" ]; then
+    if [ -f "${storageMountedPath}/app-storage/bitcoin/bitcoin.conf" ] && [ ! -L "${storageMountedPath}/app-storage/bitcoin/bitcoin.conf" ]; then
         echo "# moving bitcoin data file from ${storageMountedPath}/app-storage/bitcoin to ${dataMountedPath}/app-data/bitcoin"
-        mv ${storageMountedPath}/app-storage/bitcoin/bitcoin.conf ${dataMountedPath}/app-data/bitcoin/bitcoin.conf
-        mv ${storageMountedPath}/app-storage/bitcoin/wallet.dat ${dataMountedPath}/app-data/bitcoin/wallet.dat 2>/dev/null
+        mv --force ${storageMountedPath}/app-storage/bitcoin/bitcoin.conf ${dataMountedPath}/app-data/bitcoin/bitcoin.conf
+        mv --force ${storageMountedPath}/app-storage/bitcoin/wallet.dat ${dataMountedPath}/app-data/bitcoin/wallet.dat 2>/dev/null
     fi
     unlink ${mainMountPoint}/app-storage/bitcoin/bitcoin.conf 2>/dev/null
     ln -s ${dataMountedPath}/app-data/bitcoin/bitcoin.conf ${mainMountPoint}/app-storage/bitcoin/bitcoin.conf 2>/dev/null
     unlink ${mainMountPoint}/app-storage/bitcoin/wallet.dat 2>/dev/null
-    if [ -f "${dataMountedPath}/app-data/bitcoin/wallet.dat" ]; then
+    if [ -f "${dataMountedPath}/app-data/bitcoin/wallet.dat" ] && [ ! -L "${dataMountedPath}/app-data/bitcoin/wallet.dat" ]; then
         ln -s ${dataMountedPath}/app-data/bitcoin/wallet.dat ${mainMountPoint}/app-storage/bitcoin/wallet.dat
     fi
     echo "# For backwards compatibility: Liniking ${mainMountPoint}/bitcoin"
@@ -1159,7 +1165,12 @@ if [ "$action" = "link" ]; then
     chown bitcoin:bitcoin "${dataMountedPath}/app-data/lnd"
     if [ -d "${storageMountedPath}/lnd" ]; then
         echo "# moving old data from ${storageMountedPath}/lnd to ${dataMountedPath}/app-data/lnd"
-        mv ${storageMountedPath}/lnd/* ${dataMountedPath}/app-data/lnd/
+        rsync -a --remove-source-files --prune-empty-dirs ${storageMountedPath}/lnd/ ${dataMountedPath}/app-data/lnd/
+        if [ $? -ne 0 ]; then
+            echo "error='failed to rsync /app-data/lnd/'"
+        else
+            rm -rf ${storageMountedPath}/lnd
+        fi
     fi
     echo "# For backwards compatibility: Liniking ${mainMountPoint}/lnd"
     unlink ${mainMountPoint}/lnd 2>/dev/null
@@ -1176,7 +1187,12 @@ if [ "$action" = "link" ]; then
     chown debian-tor:debian-tor "${dataMountedPath}/app-data/tor"
     if [ -d "${storageMountedPath}/tor" ]; then
         echo "# moving old data from ${storageMountedPath}/tor to ${dataMountedPath}/app-data/tor"
-        mv ${storageMountedPath}/tor/* ${dataMountedPath}/app-data/tor/
+        rsync -a --remove-source-files --prune-empty-dirs ${storageMountedPath}/tor/ ${dataMountedPath}/app-data/tor/
+        if [ $? -ne 0 ]; then
+            echo "error='failed to rsync /app-data/tor/'"
+        else
+            rm -rf ${storageMountedPath}/tor
+        fi
     fi
     echo "# For backwards compatibility: Liniking ${mainMountPoint}/tor"
     unlink ${mainMountPoint}/tor 2>/dev/null
@@ -1191,12 +1207,12 @@ if [ "$action" = "link" ]; then
     chmod 700 ${mainMountPoint}/tor
 
     # /mnt/hdd/aspiblitz.conf (move old file if needed & link for backwards compatibility)
-    if [ -f "${storageMountedPath}/raspiblitz.conf" ]; then
+    if [ -f "${storageMountedPath}/raspiblitz.conf" ] && [ ! -L "${storageMountedPath}/raspiblitz.conf" ]; then
         echo "# moving old config from ${storageMountedPath}/raspiblitz.conf to ${dataMountedPath}/app-data/raspiblitz.conf"
-        mv ${storageMountedPath}/raspiblitz.conf ${dataMountedPath}/app-data/raspiblitz.conf
+        mv --force ${storageMountedPath}/raspiblitz.conf ${dataMountedPath}/app-data/raspiblitz.conf
     fi
-    if [ -f "${mainMountPoint}/raspiblitz.conf" ]; then
-        mv ${mainMountPoint}/raspiblitz.conf ${mainMountPoint}/app-data/raspiblitz.conf
+    if [ -f "${mainMountPoint}/raspiblitz.conf" ] && [ ! -L "${mainMountPoint}/raspiblitz.conf" ]; then
+        mv --force ${mainMountPoint}/raspiblitz.conf ${mainMountPoint}/app-data/raspiblitz.conf
     fi
     touch "${dataMountedPath}/app-data/raspiblitz.conf"
     echo "# For backwards compatibility: Liniking ${mainMountPoint}/raspiblitz.conf"
@@ -1208,11 +1224,11 @@ if [ "$action" = "link" ]; then
     ln -s ${dataMountedPath}/app-data/raspiblitz.conf ${mainMountPoint}/raspiblitz.conf
     chown root:sudo ${mainMountPoint}/raspiblitz.conf
     chmod 664 ${mainMountPoint}/raspiblitz.conf
-    if [ -f "${mainMountPoint}/.tmux.conf.local" ]; then
-        mv ${mainMountPoint}/.tmux.conf.local ${mainMountPoint}/app-data/.tmux.conf.local
+    if [ -f "${mainMountPoint}/.tmux.conf.local" ] && [ ! -L "${mainMountPoint}/.tmux.conf.local" ]; then
+        mv --force ${mainMountPoint}/.tmux.conf.local ${mainMountPoint}/app-data/.tmux.conf.local
     fi
-    if [ -f "${storageMountedPath}/.tmux.conf.local" ]; then
-        mv ${storageMountedPath}/.tmux.conf.local ${mainMountPoint}/app-data/.tmux.conf.local
+    if [ -f "${storageMountedPath}/.tmux.conf.local" ] && [ ! -L "${storageMountedPath}/.tmux.conf.local" ]; then
+        mv --force ${storageMountedPath}/.tmux.conf.local ${mainMountPoint}/app-data/.tmux.conf.local
     fi
 
     ### bitcoin user symbol links
@@ -1769,10 +1785,13 @@ if [ "$action" = "recover" ] || [ "$action" = "clean" ]; then
                 # multi partion layout
                 unmount /mnt/disk_storage
                 echo "# .. formating boot & system partition" >> ${logFile}
+                echo "# - format: boot(/dev/${actionDevicePartitionBase}1)" >> ${logFile}
                 wipefs -a /dev/${actionDevicePartitionBase}1 >> ${logFile}
                 mkfs.fat -F 32 /dev/${actionDevicePartitionBase}1 >> ${logFile}
+                echo "# - format: system(/dev/${actionDevicePartitionBase}2)" >> ${logFile}
                 wipefs -a /dev/${actionDevicePartitionBase}2 >> ${logFile}
                 mkfs -t ext4  /dev/${actionDevicePartitionBase}2 >> ${logFile}
+                echo "# - mount: storage(/dev/${actionDevicePartitionBase}3)" >> ${logFile}
                 mount /dev/${actionDevicePartitionBase}3 /mnt/disk_storage >> ${logFile}
                 echo "storagePartition='${actionDevicePartitionBase}3'"
                 echo "# storagePartition(${actionDevicePartitionBase}3)" >> ${logFile}
@@ -1793,9 +1812,14 @@ if [ "$action" = "recover" ] || [ "$action" = "clean" ]; then
             # in both setups /mnt/disk_storage/app-storage should exist
             # delete all data in /mnt/disk_storage except for /mnt/disk_storage/app-storage
             echo "# Cleaning storage partition - preserving app-storage" >> ${logFile}
+            # TODO: This is not working yet .. refactor later
             find /mnt/disk_storage -maxdepth 1 -not -name "app-storage" -not -name "." -not -name ".." -exec rm -rf {} \;
-            find /mnt/disk_storage/app-storage -maxdepth 1 -not -name "blocks" -name "chainstate" -name "indexes" -not -name "." -not -name ".." -exec rm -rf {} \;
-            
+            find /mnt/disk_storage/app-storage -maxdepth 1 -not -name "bitcoin" -not -name "." -not -name ".." -exec rm -rf {} \;
+            find /mnt/disk_storage/app-storage/bitcoin -maxdepth 1 -not -name "blocks" -name "chainstate" -not -name "." -not -name ".." -exec rm -rf {} \;
+            ls -la /mnt/disk_storage >> ${logFile}
+            ls -la /mnt/disk_storage/app-storage >> ${logFile}
+            ls -la /mnt/disk_storage/app-storage/bitcoin >> ${logFile}
+
             # Create fresh app-data directory if needed with combined data
             if [ ${actionCombinedData} -eq 1 ]; then
                 mkdir -p /mnt/disk_storage/app-data
