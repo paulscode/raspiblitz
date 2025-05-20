@@ -25,14 +25,14 @@ sudo apt install -y \
   sudo \
   xz-utils || exit 1
 
-echo -e "\n# Install Packer..."
-if ! packer version 2>/dev/null; then
-  curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-  sudo apt-add-repository -y "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-  sudo apt-get update -y && sudo apt-get install packer=1.10.0-1 -y || exit 1
-else
-  echo "# Packer is installed"
-fi
+# echo -e "\n# Install Packer..."
+# if ! packer version 2>/dev/null; then
+#   curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+#   sudo apt-add-repository -y "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+#   sudo apt-get update -y && sudo apt-get install packer=1.10.0-1 -y || exit 1
+# else
+#   echo "# Packer is installed"
+# fi
 
 echo -e "\n# Install Go"
 export PATH=$PATH:/usr/local/go/bin
