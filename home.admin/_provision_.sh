@@ -55,8 +55,8 @@ usermod -a -G debian-tor bitcoin
 
 # make sure to have bitcoin core >=22 is backwards comp
 # see https://github.com/rootzoll/raspiblitz/issues/2546
-sed -i '/^deprecatedrpc=.*/d' /mnt/hdd/bitcoin/bitcoin.conf 2>/dev/null
-echo "deprecatedrpc=addresses" >> /mnt/hdd/bitcoin/bitcoin.conf 2>/dev/null
+sed -i '/^deprecatedrpc=.*/d' /mnt/hdd/app-data/bitcoin/bitcoin.conf 2>/dev/null
+echo "deprecatedrpc=addresses" >> /mnt/hdd/app-data/bitcoin/bitcoin.conf 2>/dev/null
 
 # backup SSH PubKeys
 /home/admin/config.scripts/blitz.ssh.sh backup
@@ -68,11 +68,11 @@ echo "deprecatedrpc=addresses" >> /mnt/hdd/bitcoin/bitcoin.conf 2>/dev/null
 kbSizeRAM=$(cat /proc/meminfo | grep "MemTotal" | sed 's/[^0-9]*//g')
 if [ ${kbSizeRAM} -gt 1500000 ]; then
   echo "Detected RAM >1GB --> optimizing ${network}.conf"
-  sed -i "s/^maxmempool=.*/maxmempool=300/g" /mnt/hdd/${network}/${network}.conf
+  sed -i "s/^maxmempool=.*/maxmempool=300/g" /mnt/hdd/app-data/${network}/${network}.conf
 fi
 if [ ${kbSizeRAM} -gt 3500000 ]; then
   echo "Detected RAM >3GB --> optimizing ${network}.conf"
-  sed -i "s/^maxmempool=.*/maxmempool=300/g" /mnt/hdd/${network}/${network}.conf
+  sed -i "s/^maxmempool=.*/maxmempool=300/g" /mnt/hdd/app-data/${network}/${network}.conf
 fi
 
 # zram on for all devices
@@ -784,11 +784,12 @@ echo "" >> ${logFile}
 
 # repair Bitcoin conf if needed
 echo "*** Repair Bitcoin Conf (if needed)" >> ${logFile}
-confExists="$(ls /mnt/hdd/${network} | grep -c "${network}.conf")"
+confExists="$(ls /mnt/hdd/app-data/${network} | grep -c "${network}.conf")"
 if [ ${confExists} -eq 0 ]; then
   echo "Doing init of ${network}.conf" >> ${logFile}
-  cp /home/admin/assets/bitcoin.conf /mnt/hdd/bitcoin/bitcoin.conf
-  chown bitcoin:bitcoin /mnt/hdd/bitcoin/bitcoin.conf
+  cp /home/admin/assets/bitcoin.conf /mnt/hdd/app-data/bitcoin/bitcoin.conf
+  chown bitcoin:bitcoin /mnt/hdd/app-data/bitcoin/bitcoin.conf
+  /home/admin/config.scripts/blitz.data.sh link
 fi
 
 # I2P

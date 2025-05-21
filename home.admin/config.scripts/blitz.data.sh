@@ -1118,6 +1118,8 @@ if [ "$action" = "link" ]; then
     fi
     ln -s ${dataMountedPath}/app-data ${mainMountPoint}/app-data
     chown bitcoin:bitcoin ${dataMountedPath}/app-data ${mainMountPoint}/app-data
+    mkdir -p /mnt/hdd/app-data/bitcoin/wallets 2>/dev/null
+    chown -R bitcoin:bitcoin ${dataMountedPath}/app-data/bitcoin
     chmod 755 ${dataMountedPath}/app-data ${mainMountPoint}/app-data
     chmod o+x ${dataMountedPath}
     chmod o+x ${dataMountedPath}/app-data
@@ -1143,17 +1145,26 @@ if [ "$action" = "link" ]; then
             rm -rf ${storageMountedPath}/bitcoin
         fi
     fi
+    if [ -d "${storageMountedPath}/app-storage/bitcoin/wallet.dat" ]; then
+        echo "# moving old wallet from ${storageMountedPath}/app-storage/bitcoin/wallet.dat to ${dataMountedPath}/app-data/bitcoin/wallets/wallet.dat"
+        mv --force ${storageMountedPath}/app-storage/bitcoin/wallet.dat ${dataMountedPath}/app-data/bitcoin/wallets/wallet.dat
+        if [ $? -ne 0 ]; then
+            echo "error='failed to move ${storageMountedPath}/app-storage/bitcoin/wallet.dat to ${dataMountedPath}/app-data/bitcoin/wallets/wallet.dat'"
+        fi
+    fi
     if [ -f "${storageMountedPath}/app-storage/bitcoin/bitcoin.conf" ] && [ ! -L "${storageMountedPath}/app-storage/bitcoin/bitcoin.conf" ]; then
-        echo "# moving bitcoin data file from ${storageMountedPath}/app-storage/bitcoin to ${dataMountedPath}/app-data/bitcoin"
-        mv --force ${storageMountedPath}/app-storage/bitcoin/bitcoin.conf ${dataMountedPath}/app-data/bitcoin/bitcoin.conf
-        mv --force ${storageMountedPath}/app-storage/bitcoin/wallet.dat ${dataMountedPath}/app-data/bitcoin/wallet.dat 2>/dev/null
+        if [ ! -f "${dataMountedPath}/app-data/bitcoin/bitcoin.conf" ]; then
+            echo "# moving bitcoin config file from ${storageMountedPath}/app-storage/bitcoin to ${dataMountedPath}/app-data/bitcoin"
+            mv --force ${storageMountedPath}/app-storage/bitcoin/bitcoin.conf ${dataMountedPath}/app-data/bitcoin/bitcoin.conf
+            if [ $? -ne 0 ]; then
+                echo "error='failed to move ${storageMountedPath}/app-storage/bitcoin/bitcoin.conf to ${dataMountedPath}/app-data/bitcoin/bitcoin.conf'"
+            fi
+        else
+            echo "error='there is ${storageMountedPath}/app-storage/bitcoin/bitcoin.conf AND ${dataMountedPath}/app-data/bitcoin/bitcoin.conf'"
+        fi
     fi
     unlink ${mainMountPoint}/app-storage/bitcoin/bitcoin.conf 2>/dev/null
-    ln -s ${dataMountedPath}/app-data/bitcoin/bitcoin.conf ${mainMountPoint}/app-storage/bitcoin/bitcoin.conf 2>/dev/null
-    unlink ${mainMountPoint}/app-storage/bitcoin/wallet.dat 2>/dev/null
-    if [ -f "${dataMountedPath}/app-data/bitcoin/wallet.dat" ] && [ ! -L "${dataMountedPath}/app-data/bitcoin/wallet.dat" ]; then
-        ln -s ${dataMountedPath}/app-data/bitcoin/wallet.dat ${mainMountPoint}/app-storage/bitcoin/wallet.dat
-    fi
+
     echo "# For backwards compatibility: Liniking ${mainMountPoint}/bitcoin"
     unlink ${mainMountPoint}/bitcoin 2>/dev/null
     ln -s ${storageMountedPath}/app-storage/bitcoin ${mainMountPoint}/bitcoin
@@ -1214,16 +1225,9 @@ if [ "$action" = "link" ]; then
     if [ -f "${mainMountPoint}/raspiblitz.conf" ] && [ ! -L "${mainMountPoint}/raspiblitz.conf" ]; then
         mv --force ${mainMountPoint}/raspiblitz.conf ${mainMountPoint}/app-data/raspiblitz.conf
     fi
-    touch "${dataMountedPath}/app-data/raspiblitz.conf"
-    echo "# For backwards compatibility: Liniking ${mainMountPoint}/raspiblitz.conf"
-    unlink ${mainMountPoint}/raspiblitz.conf 2>/dev/null
-    if [ -f "${mainMountPoint}/raspiblitz.conf" ]; then
-        echo "error='${mainMountPoint}/raspiblitz.conf is real file'"
-        exit 1
-    fi
-    ln -s ${dataMountedPath}/app-data/raspiblitz.conf ${mainMountPoint}/raspiblitz.conf
-    chown root:sudo ${mainMountPoint}/raspiblitz.conf
-    chmod 664 ${mainMountPoint}/raspiblitz.conf
+
+    echo "you find bitcoin.conf now in ${mainMountPoint}/app-data/bitcoin/bitcoin.conf" > ${mainMountPoint}/bitcoin/bitcoin-conf.info
+
     if [ -f "${mainMountPoint}/.tmux.conf.local" ] && [ ! -L "${mainMountPoint}/.tmux.conf.local" ]; then
         mv --force ${mainMountPoint}/.tmux.conf.local ${mainMountPoint}/app-data/.tmux.conf.local
     fi
@@ -1234,7 +1238,7 @@ if [ "$action" = "link" ]; then
     ### bitcoin user symbol links
     echo "# bitcoin user symbol link: /home/bitcoin/.bitcoin"
     unlink /home/bitcoin/.bitcoin 2>/dev/null
-    ln -s /mnt/hdd/app-storage/bitcoin /home/bitcoin/.bitcoin
+    ln -s /mnt/hdd/app-data/bitcoin /home/bitcoin/.bitcoin
     chown bitcoin:bitcoin /home/bitcoin/.bitcoin
     echo "# bitcoin user symbol link: /home/bitcoin/.lnd"
     unlink /home/bitcoin/.lnd 2>/dev/null
@@ -1244,7 +1248,7 @@ if [ "$action" = "link" ]; then
     ### admin user symbol links
     echo "# admin user symbol link: /home/admin/.bitcoin"
     unlink /home/admin/.bitcoin 2>/dev/null
-    ln -s /mnt/hdd/app-storage/bitcoin /home/admin/.bitcoin
+    ln -s /mnt/hdd/app-data/bitcoin /home/admin/.bitcoin
     echo "# admin user symbol link: /home/admin/.lnd"
     unlink /home/admin/.lnd 2>/dev/null
     ln -s /mnt/hdd/app-data/lnd /home/admin/.lnd
