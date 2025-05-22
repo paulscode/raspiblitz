@@ -2,6 +2,9 @@
 
 # Based on: https://gist.github.com/normandmickey/3f10fc077d15345fb469034e3697d0d0
 
+echo "⚠️ Skipping BTCPayServer/NBXplorer build in Packer (QEMU .NET SIGSEGV issue)."
+exit 0
+
 # https://github.com/dgarage/NBXplorer/tags
 NBXplorerVersion="v2.5.26"
 # https://github.com/btcpayserver/btcpayserver/releases
