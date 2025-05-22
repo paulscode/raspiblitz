@@ -6,6 +6,12 @@
 # https://github.com/openoms/joininbox
 
 # https://github.com/openoms/joininbox/tags
+
+# ---- Ensure autotools are present for building libsodium ----
+apt-get update
+apt-get install -y --no-install-recommends \
+    autoconf automake libtool gettext pkg-config
+
 JBTAG="v0.8.3" # installs JoinMarket v0.9.11
 
 # command info
