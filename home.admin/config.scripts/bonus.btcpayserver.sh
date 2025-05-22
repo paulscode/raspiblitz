@@ -3,9 +3,9 @@
 # Based on: https://gist.github.com/normandmickey/3f10fc077d15345fb469034e3697d0d0
 
 # https://github.com/dgarage/NBXplorer/tags
-NBXplorerVersion="v2.5.17"
+NBXplorerVersion="v2.5.26"
 # https://github.com/btcpayserver/btcpayserver/releases
-BTCPayVersion="v2.0.5"
+BTCPayVersion="v2.2.1"
 
 # check who signed the release (person that published release)
 PGPsigner="nicolasdorier"
@@ -54,8 +54,8 @@ function NBXplorerConfig() {
   # https://docs.btcpayserver.org/Deployment/ManualDeploymentExtended/#4-create-a-configuration-file
   echo
   echo "# Getting RPC credentials from the bitcoin.conf"
-  RPC_USER=$(sudo cat /mnt/hdd/bitcoin/bitcoin.conf | grep rpcuser | cut -c 9-)
-  PASSWORD_B=$(sudo cat /mnt/hdd/bitcoin/bitcoin.conf | grep rpcpassword | cut -c 13-)
+  RPC_USER=$(sudo cat /mnt/hdd/app-data/bitcoin/bitcoin.conf | grep rpcuser | cut -c 9-)
+  PASSWORD_B=$(sudo cat /mnt/hdd/app-data/bitcoin/bitcoin.conf | grep rpcpassword | cut -c 13-)
   sudo -u btcpay mkdir -p /home/btcpay/.nbxplorer/Main
   echo "\
 network=mainnet
@@ -695,8 +695,8 @@ WantedBy=multi-user.target
   NBXplorerConfig
 
   # whitelist localhost in bitcoind
-  if ! sudo grep -Eq "^whitelist=127.0.0.1" /mnt/hdd/bitcoin/bitcoin.conf; then
-    echo "whitelist=127.0.0.1" | sudo tee -a /mnt/hdd/bitcoin/bitcoin.conf
+  if ! sudo grep -Eq "^whitelist=127.0.0.1" /mnt/hdd/app-data/bitcoin/bitcoin.conf; then
+    echo "whitelist=127.0.0.1" | sudo tee -a /mnt/hdd/app-data/bitcoin/bitcoin.conf
     bitcoindRestart=yes
   fi
 
@@ -893,8 +893,8 @@ if [ "$1" = "update" ]; then
     sudo -u btcpay /home/btcpay/dotnet/dotnet build -c Release NBXplorer/NBXplorer.csproj || exit 1
 
     # whitelist localhost in bitcoind
-    if ! sudo grep -Eq "^whitelist=127.0.0.1" /mnt/hdd/bitcoin/bitcoin.conf; then
-      echo "whitelist=127.0.0.1" | sudo tee -a /mnt/hdd/bitcoin/bitcoin.conf
+    if ! sudo grep -Eq "^whitelist=127.0.0.1" /mnt/hdd/app-data/bitcoin/bitcoin.conf; then
+      echo "whitelist=127.0.0.1" | sudo tee -a /mnt/hdd/app-data/bitcoin/bitcoin.conf
       echo "# Restarting bitcoind"
       sudo systemctl restart bitcoind
     fi

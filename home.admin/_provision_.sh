@@ -55,8 +55,8 @@ usermod -a -G debian-tor bitcoin
 
 # make sure to have bitcoin core >=22 is backwards comp
 # see https://github.com/rootzoll/raspiblitz/issues/2546
-sed -i '/^deprecatedrpc=.*/d' /mnt/hdd/bitcoin/bitcoin.conf 2>/dev/null
-echo "deprecatedrpc=addresses" >> /mnt/hdd/bitcoin/bitcoin.conf 2>/dev/null
+sed -i '/^deprecatedrpc=.*/d' /mnt/hdd/app-data/bitcoin/bitcoin.conf 2>/dev/null
+echo "deprecatedrpc=addresses" >> /mnt/hdd/app-data/bitcoin/bitcoin.conf 2>/dev/null
 
 # backup SSH PubKeys
 /home/admin/config.scripts/blitz.ssh.sh backup
@@ -68,30 +68,15 @@ echo "deprecatedrpc=addresses" >> /mnt/hdd/bitcoin/bitcoin.conf 2>/dev/null
 kbSizeRAM=$(cat /proc/meminfo | grep "MemTotal" | sed 's/[^0-9]*//g')
 if [ ${kbSizeRAM} -gt 1500000 ]; then
   echo "Detected RAM >1GB --> optimizing ${network}.conf"
-  sed -i "s/^maxmempool=.*/maxmempool=300/g" /mnt/hdd/${network}/${network}.conf
+  sed -i "s/^maxmempool=.*/maxmempool=300/g" /mnt/hdd/app-data/${network}/${network}.conf
 fi
 if [ ${kbSizeRAM} -gt 3500000 ]; then
   echo "Detected RAM >3GB --> optimizing ${network}.conf"
-  sed -i "s/^maxmempool=.*/maxmempool=300/g" /mnt/hdd/${network}/${network}.conf
+  sed -i "s/^maxmempool=.*/maxmempool=300/g" /mnt/hdd/app-data/${network}/${network}.conf
 fi
 
 # zram on for all devices
 /home/admin/config.scripts/blitz.zram.sh on >> ${logFile}
-
-# link and copy HDD content into new OS on sd card
-echo "Copy HDD content for user admin" >> ${logFile}
-mkdir /home/admin/.${network} >> ${logFile}
-cp /mnt/hdd/${network}/${network}.conf /home/admin/.${network}/${network}.conf >> ${logFile} 2>&1
-mkdir /home/admin/.lnd >> ${logFile}
-cp /mnt/hdd/app-data/lnd/lnd.conf /home/admin/.lnd/lnd.conf >> ${logFile}
-cp /mnt/hdd/app-data/lnd/tls.cert /home/admin/.lnd/tls.cert >> ${logFile}
-mkdir /home/admin/.lnd/data >> ${logFile}
-cp -r /mnt/hdd/app-data/lnd/data/chain /home/admin/.lnd/data/chain >> ${logFile} 2>&1
-chown -R admin:admin /home/admin/.${network} >> ${logFile} 2>&1
-chown -R admin:admin /home/admin/.lnd >> ${logFile} 2>&1
-cp /home/admin/assets/tmux.conf.local /mnt/hdd/app-data/.tmux.conf.local >> ${logFile} 2>&1
-chown admin:admin /mnt/hdd/app-data/.tmux.conf.local >> ${logFile} 2>&1
-ln -s -f /mnt/hdd/app-data/.tmux.conf.local /home/admin/.tmux.conf.local >> ${logFile} 2>&1
 
 # PREPARE LND (if activated)
 if [ "${lightning}" == "lnd" ] || [ "${lnd}" == "on" ]; then
@@ -799,11 +784,12 @@ echo "" >> ${logFile}
 
 # repair Bitcoin conf if needed
 echo "*** Repair Bitcoin Conf (if needed)" >> ${logFile}
-confExists="$(ls /mnt/hdd/${network} | grep -c "${network}.conf")"
+confExists="$(ls /mnt/hdd/app-data/${network} | grep -c "${network}.conf")"
 if [ ${confExists} -eq 0 ]; then
   echo "Doing init of ${network}.conf" >> ${logFile}
-  cp /home/admin/assets/bitcoin.conf /mnt/hdd/bitcoin/bitcoin.conf
-  chown bitcoin:bitcoin /mnt/hdd/bitcoin/bitcoin.conf
+  cp /home/admin/assets/bitcoin.conf /mnt/hdd/app-data/bitcoin/bitcoin.conf
+  chown bitcoin:bitcoin /mnt/hdd/app-data/bitcoin/bitcoin.conf
+  /home/admin/config.scripts/blitz.data.sh link
 fi
 
 # I2P
