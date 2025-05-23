@@ -4,10 +4,9 @@
 # ~/.config/btc-rpc-explorer.env
 # https://github.com/janoside/btc-rpc-explorer/blob/master/.env-sample
 
-# --- Ensure build tools & libs for ZeroMQ addon ---
-apt-get update
-apt-get install -y --no-install-recommends \
-    build-essential cmake ninja-build python3 pkg-config libzmq3-dev
+# --- SKIP BTC-RPC-EXPLORER BUILD UNDER QEMU ---
+echo "⚠️ Skipping btc-rpc-explorer build in Packer (vcpkg/.NET under QEMU issues)."
+exit 0
 
 # use commit hash, because latest release 3.4.0 is too old
 GITHUBCOMMIT="153aa0ae7f902562bd1cfa2bbcea4c00026e5aef"
